@@ -1,0 +1,15 @@
+{
+  "name": "autocomplete-bibtex",
+  "main": "./lib/autocomplete-bibtex",
+  "version": "0.1.0",
+  "description": "Adds bibtex key autocompletion to autocomplete+",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+    "underscore-plus": "~1.1.2",
+    "autocomplete-plus": "git://github.com/saschagehlich/autocomplete-plus.git",
+    "fuzzaldrin": "~1.0.0"
+  }
+}
