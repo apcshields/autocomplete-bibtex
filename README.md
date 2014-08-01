@@ -23,7 +23,7 @@ You can install autocomplete-bibtex using the Preferences pane.
     ]
   ```
 
-  (For instructions about editing `config.json`, check out the Atom
+  (For instructions about editing `config.cson`, check out the Atom
   [documentation](https://atom.io/docs/v0.120.0/customizing-atom#advanced-configuration).)
 
 2. In the document in which you want a citation, type '@' (the beginning of a
