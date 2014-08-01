@@ -1,15 +1,22 @@
 {
   "name": "autocomplete-bibtex",
   "main": "./lib/autocomplete-bibtex",
-  "version": "0.1.0",
-  "description": "Adds bibtex key autocompletion to autocomplete+",
+  "version": "0.0.0",
+  "description": "Adds BibTeX key autocompletion to autocomplete+",
+  "author": "apcshields",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "underscore-plus": "~1.1.2",
     "autocomplete-plus": "git://github.com/saschagehlich/autocomplete-plus.git",
-    "fuzzaldrin": "~1.0.0"
+    "fuzzaldrin": "~1.0.0",
+    "sugar": "1.4.x",
+    "underscore-plus": "~1.1.2",
+    "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apcshields/autocomplete-bibtex"
   }
 }
