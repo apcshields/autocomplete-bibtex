@@ -12,18 +12,15 @@ class BibtexProvider extends Provider
   exclusive: true
   possibleWords: []
   initialize: ->
-    bibtex = []
-    files = atom.config.get "autocomplete-bibtex.bibtex"
-
-    for file in files
-      try
-        bibtex = bibtex.concat \
-          bibtexParse.toJSON(fs.readFileSync(file, 'utf-8'))
-      catch error
-        console.error error
-
     try
       if @possibleWords.length is 0
+        bibtex = []
+        files = atom.config.get "autocomplete-bibtex.bibtex"
+
+        for file in files
+          bibtex = bibtex.concat \
+              bibtexParse.toJSON(fs.readFileSync(file, 'utf-8'))
+
         for citation in bibtex
           citation.entryTags.prettyTitle =
             @prettifyTitle citation.entryTags.title

@@ -1,4 +1,6 @@
 _ = require "underscore-plus"
+path = require "path"
+minimatch = require "minimatch"
 BibtexProvider = require "./bibtex-provider"
 
 module.exports =
@@ -24,6 +26,39 @@ module.exports =
         provider = new BibtexProvider editorView
 
         @autocomplete.registerProviderForEditorView provider, editorView
+
+        # Unregister other providers?
+        # Can we get the class name of each provider?
+        # Yes. (provider.constructor.name)
+        # We'll need it and the buffer file extension.
+
+        try
+          if atom.config.get("autocomplete-bibtex.suppressOtherProvidersInMarkdown") \
+          and minimatch(path.basename(editorView.editor.getBuffer().getPath()), '*.md')
+
+            autocompleteView = _.findWhere(@autocomplete.autocompleteViews, \
+              editorView: editorView)
+
+            console.error autocompleteView.providers
+            console.error autocompleteView.unregisterProvider
+
+            try
+              for badProvider in autocompleteView.providers \
+              when badProvider.constructor.name isnt 'BibtexProvider'
+                try
+                  autocompleteView.unregisterProvider(badProvider)
+                catch error
+                  console.error error
+            catch error
+              console.error error
+
+            ###
+            console.error badProvider.constructor.name for badProvider in \
+            autocompleteView.providers when \
+            badProvider.constructor.name isnt 'BibtexProvider'
+            ###
+        catch error
+          console.error error
 
         @providers.push provider
 
