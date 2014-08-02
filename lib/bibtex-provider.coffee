@@ -24,9 +24,9 @@ class BibtexProvider extends Provider
         for citation in bibtex
           citation.entryTags.prettyTitle =
             @prettifyTitle citation.entryTags.title
+
           citation.entryTags.authors =
             @cleanAuthors citation.entryTags.author?.split ' and '
-
           citation.entryTags.prettyAuthors =
             @prettifyAuthors citation.entryTags.authors
 
