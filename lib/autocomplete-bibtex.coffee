@@ -5,6 +5,8 @@ module.exports =
   editorSubscription: null
   providers: []
   autocomplete: null
+  configDefaults:
+    fileBlacklist: "!*.{md,markdown,pandoc}"
 
   ###
    * Registers a SnippetProvider for each editor view
