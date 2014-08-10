@@ -9,7 +9,7 @@
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "autocomplete-plus": "git://github.com/saschagehlich/autocomplete-plus.git",
+    "autocomplete-plus-minimal": "git://github.com/apcshields/autocomplete-plus-minimal.git#v0.1.1",
     "fuzzaldrin": "~1.0.0",
     "sugar": "1.4.x",
     "underscore-plus": "~1.1.2",

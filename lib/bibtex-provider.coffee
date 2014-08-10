@@ -1,5 +1,5 @@
 {Range}  = require "atom"
-{Provider, Suggestion} = require "autocomplete-plus"
+{Provider, Suggestion} = require "autocomplete-plus-minimal"
 fuzzaldrin = require "fuzzaldrin"
 _ = require "underscore-plus"
 fs = require "fs"

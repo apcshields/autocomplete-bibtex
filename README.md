@@ -9,7 +9,8 @@ BibTeX citation key autocompletion to
 
 You can install autocomplete-bibtex using the Preferences pane.
 
-**Please make sure you have autocomplete-plus installed as well**
+N.B. As of version 0.2.0, you no longer need to have
+[autocomplete-plus](https://atom.io/packages/autocomplete-plus) installed.
 
 ## Usage
 
@@ -26,7 +27,25 @@ You can install autocomplete-bibtex using the Preferences pane.
   (For instructions about editing `config.cson`, check out the Atom
   [documentation](https://atom.io/docs/v0.120.0/customizing-atom#advanced-configuration).)
 
-2. In the document in which you want a citation, type '@' (the beginning of a
+2. By default, autocomplete-bibtex will only be active when you edit files
+  ending with the `.md`, `.markdown`, or `.pandoc` extensions. To change this,
+  change the file blacklist in the package preferences or add another key to
+  `config.cson`.
+
+  ```coffeescript
+  'autocomplete-bibtex':
+    'bibtex': [
+      '/path/to/references.bib'
+    ]
+    'fileBlacklist':
+      '!*.{md,markdown,pandoc,txt}'
+  ```
+
+  (The `fileBlacklist` variable uses [glob matching](https://en.wikipedia.org/wiki/Glob_(programming)
+  through [minimatch](https://www.npmjs.org/package/minimatch). This example
+  adds autocompletion to `.txt` files.)
+
+3. In the document in which you want a citation, type '@' (the beginning of a
   Pandoc citation) and then begin to type the family name of any of the authors
   of the work you wish to cite. For instance, to cite
 

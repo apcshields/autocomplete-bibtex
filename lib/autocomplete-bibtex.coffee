@@ -1,4 +1,5 @@
 _ = require "underscore-plus"
+Autocomplete = require 'autocomplete-plus-minimal'
 BibtexProvider = require "./bibtex-provider"
 
 module.exports =
@@ -12,10 +13,10 @@ module.exports =
    * Registers a SnippetProvider for each editor view
   ###
   activate: ->
-    atom.packages.activatePackage("autocomplete-plus")
-      .then (pkg) =>
-        @autocomplete = pkg.mainModule
-        @registerProviders()
+    @autocomplete = Autocomplete
+    @autocomplete.activate()
+
+    @registerProviders()
 
   ###
    * Registers a SnippetProvider for each editor view
