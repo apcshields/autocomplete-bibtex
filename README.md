@@ -1,7 +1,6 @@
 # autocomplete-bibtex package
 
-Adds [Pandoc-style](http://johnmacfarlane.net/pandoc/README.html#citations)
-BibTeX citation key autocompletion to
+Adds BibTeX citation key autocompletion to
 [autocomplete+](https://github.com/saschagehlich/autocomplete-plus) for
 [Atom](http://atom.io/).
 
@@ -25,7 +24,7 @@ N.B. As of version 0.2.0, you no longer need to have
   ```
 
   (For instructions about editing `config.cson`, check out the Atom
-  [documentation](https://atom.io/docs/v0.120.0/customizing-atom#advanced-configuration).)
+  [documentation](https://atom.io/docs/latest/customizing-atom#advanced-configuration).)
 
 2. By default, autocomplete-bibtex will only be active when you edit files
   ending with the `.md`, `.markdown`, or `.pandoc` extensions. To change this,
@@ -37,8 +36,7 @@ N.B. As of version 0.2.0, you no longer need to have
     'bibtex': [
       '/path/to/references.bib'
     ]
-    'fileBlacklist':
-      '!*.{md,markdown,pandoc,txt}'
+    'fileBlacklist': '!*.{md,markdown,pandoc,txt}'
   ```
 
   (The `fileBlacklist` variable uses [glob matching](https://en.wikipedia.org/wiki/Glob_(programming)
@@ -92,8 +90,36 @@ N.B. As of version 0.2.0, you no longer need to have
   @krijnen_expand_2014
   ```
 
+### Custom citation formatting.
+
+As of version 0.3.0, you can customize what autocomplete-bibtex inserts when you
+confirm an autocomplete suggestion.
+
+By default, autocomplete-bibtex inserts a
+[Pandoc-style](http://johnmacfarlane.net/pandoc/README.html#citations)
+citation (e.g., `@krijnen_expand_2014` from the example above). However, if you
+prefer a different insertion, say a LaTeX footnote citation like
+`\footfullcite{krijnen_expand_2014}`, you can adjust the `resultTemplate`
+configuration variable in the package preferences or add another key to
+`config.cson`.
+
+```coffeescript
+'autocomplete-bibtex':
+  'bibtex': [
+    '/path/to/references.bib'
+  ]
+  'fileBlacklist': '!*.{md,markdown,pandoc}'
+  'resultTemplate': '\footfullcite{[key]}'
+```
+
+Autocomplete-bibtex will replace the string `[key]` with the key of the BibTeX
+entry you select using the autocomplete feature.
+
+N.B. Even if you use a custom citation format, the autocompletion feature is
+still triggered by typing `@` and then part of an author’s name.
+
 ## Acknowledgements
 
-This package is built on top of saschagehlich's
-[fork](https://github.com/saschagehlich/autocomplete-plus) of Atom's standard
+This package is built on top of saschagehlich’s
+[fork](https://github.com/saschagehlich/autocomplete-plus) of Atom’s standard
 autocomplete. In building it, I relied heavily on his [excellent tutorial](https://github.com/saschagehlich/autocomplete-plus/wiki/Tutorial:-Registering-and-creating-a-suggestion-provider).
