@@ -7,7 +7,9 @@ module.exports =
   providers: []
   autocomplete: null
   configDefaults:
+    bibtex: ""
     fileBlacklist: "!*.{md,markdown,pandoc}"
+    resultTemplate: "@[key]"
 
   ###
    * Registers a SnippetProvider for each editor view

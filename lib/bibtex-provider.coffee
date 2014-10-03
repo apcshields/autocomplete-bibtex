@@ -10,35 +10,57 @@ module.exports =
 class BibtexProvider extends Provider
   wordRegex: /@[a-zA-Z0-9\._-]*/g
   exclusive: true
+  bibtex: []
   possibleWords: []
+  resultTemplate: ''
   initialize: ->
+    resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
+
     if @possibleWords.length is 0
-      try
-        bibtex = []
-        files = atom.config.get "autocomplete-bibtex.bibtex"
+      if @bibtex.length is 0
+        @readBibtexFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
-        for file in files
-          bibtex = bibtex.concat \
-            bibtexParse.toJSON(fs.readFileSync(file, 'utf-8'))
+      @buildWordList()
 
-        for citation in bibtex
-          citation.entryTags.prettyTitle =
-            @prettifyTitle citation.entryTags.title
+    atom.config.observe "autocomplete-bibtex.bibtex", (bibtex) =>
+      @readBibtexFiles(bibtex)
+      @buildWordList()
+    atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
+      @resultTemplate = resultTemplate
 
-          citation.entryTags.authors =
-            @cleanAuthors citation.entryTags.author?.split ' and '
-          citation.entryTags.prettyAuthors =
-            @prettifyAuthors citation.entryTags.authors
+  readBibtexFiles: (files) =>
+    try
+      bibtex = []
 
-          for author in citation.entryTags.authors
-            @possibleWords.push {
-              author: @prettifyName(author, yes),
-              key: citation.citationKey,
-              label: "#{citation.entryTags.prettyTitle} \
-                by #{citation.entryTags.prettyAuthors}"
-            }
-      catch error
-        console.error error
+      for file in files
+        bibtex = bibtex.concat \
+          bibtexParse.toJSON(fs.readFileSync(file, 'utf-8'))
+
+      @bibtex = bibtex
+    catch error
+      console.error error
+
+  buildWordList: =>
+    possibleWords = []
+
+    for citation in @bibtex
+      citation.entryTags.prettyTitle =
+        @prettifyTitle citation.entryTags.title
+
+      citation.entryTags.authors =
+        @cleanAuthors citation.entryTags.author?.split ' and '
+      citation.entryTags.prettyAuthors =
+        @prettifyAuthors citation.entryTags.authors
+
+      for author in citation.entryTags.authors
+        possibleWords.push {
+          author: @prettifyName(author, yes),
+          key: citation.citationKey,
+          label: "#{citation.entryTags.prettyTitle} \
+            by #{citation.entryTags.prettyAuthors}"
+        }
+
+    @possibleWords = possibleWords
 
   buildSuggestions: ->
     selection = @editor.getSelection()
@@ -60,7 +82,7 @@ class BibtexProvider extends Provider
         prefix: prefix,
         label: word.label
         data:
-          body: word.key
+          body: @resultTemplate.replace('[key]', word.key)
 
     return suggestions
 
@@ -71,12 +93,11 @@ class BibtexProvider extends Provider
 
     # Replace the prefix with the body
     cursorPosition = @editor.getCursorBufferPosition()
-    buffer.delete \
-      Range.fromPointWithDelta(cursorPosition, 0, -suggestion.prefix.length)
+    buffer.delete Range.fromPointWithDelta(cursorPosition, 0, -(suggestion.prefix.length + 1))
     @editor.insertText suggestion.data.body
 
     # Move the cursor behind the body
-    suffixLength = suggestion.data.body.length - suggestion.prefix.length
+    suffixLength = suggestion.data.body.length - (suggestion.prefix.length + 1)
     @editor.setSelectedBufferRange \
       [startPosition, [startPosition.row, startPosition.column + suffixLength]]
 
