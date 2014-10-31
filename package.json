@@ -13,7 +13,7 @@
     "fuzzaldrin": "~1.0.0",
     "sugar": "1.4.x",
     "underscore-plus": "~1.1.2",
-    "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git"
+    "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.0.0"
   },
   "repository": {
     "type": "git",

@@ -33,8 +33,9 @@ class BibtexProvider extends Provider
       bibtex = []
 
       for file in files
-        bibtex = bibtex.concat \
-          bibtexParse.toJSON(fs.readFileSync(file, 'utf-8'))
+        parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
+
+        bibtex = bibtex.concat parser.parse()
 
       @bibtex = bibtex
     catch error
