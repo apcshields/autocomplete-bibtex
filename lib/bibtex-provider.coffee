@@ -5,10 +5,11 @@ _ = require "underscore-plus"
 fs = require "fs"
 require "sugar"
 bibtexParse = require "zotero-bibtex-parse"
+XRegExp = require('xregexp').XRegExp
 
 module.exports =
 class BibtexProvider extends Provider
-  wordRegex: /@[a-zA-Z0-9\._-]*/g
+  wordRegex: XRegExp('@[\\p{Letter}\\p{Number}\._-]*', 'g')
   exclusive: true
   bibtex: []
   possibleWords: []
