@@ -20,7 +20,7 @@ class BibtexProvider
       blacklist: ''
       providerblacklist: '' # Give the user the option to configure this.
       requestHandler: (options) =>
-        prefix = options.prefix.replace /^@/, ''
+        prefix = options.prefix.normalize().replace(/^@/, '')
 
         words = fuzzaldrin.filter @possibleWords, prefix, { key: 'author' }
 
