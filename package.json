@@ -1,6 +1,6 @@
 {
   "name": "autocomplete-bibtex",
-  "main": "./lib/autocomplete-bibtex",
+  "main": "./lib/main",
   "version": "0.4.1",
   "description": "Adds BibTeX key autocompletion to autocomplete+",
   "author": "apcshields",
