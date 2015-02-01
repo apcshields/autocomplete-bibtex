@@ -8,8 +8,9 @@ Adds BibTeX citation key autocompletion to
 
 You can install autocomplete-bibtex using the Preferences pane.
 
-N.B. As of version 0.2.0, you no longer need to have
-[autocomplete-plus](https://atom.io/packages/autocomplete-plus) installed.
+N.B. autocomplete-bibtex has migrated back to using [autocomplete-plus](https://atom.io/packages/autocomplete-plus),
+so as of version 0.5.0, you once again need to have autocomplete-plus installed.
+See [Usage, step 2] for the extra configuration step this change requires.
 
 ## Usage
 
@@ -26,22 +27,25 @@ N.B. As of version 0.2.0, you no longer need to have
   (For instructions about editing `config.cson`, check out the Atom
   [documentation](https://atom.io/docs/latest/customizing-atom#advanced-configuration).)
 
-2. By default, autocomplete-bibtex will only be active when you edit files
-  ending with the `.md`, `.markdown`, or `.pandoc` extensions. To change this,
-  change the file blacklist in the package preferences or add another key to
-  `config.cson`.
+2. By default, the autocomplete-bibtex package is configured to provide
+  suggestions in [scopes](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
+  which Atom recognizes as Markdown.
+
+  However, autocomplete-plus will, by default, override this and block
+  completion in files which end in `.md`. If you plan to use autocomplete-bibtex
+  with Markdown files, you probably want to change the 'File Blacklist' setting
+  in the autocomplete-plus preferences or `config.cson`:
 
   ```coffeescript
-  'autocomplete-bibtex':
-    'bibtex': [
-      '/path/to/references.bib'
+  "autocomplete-plus":
+    fileBlacklist: [
+      ".*"
     ]
-    'fileBlacklist': '!*.{md,markdown,pandoc,txt}'
   ```
 
   (The `fileBlacklist` variable uses [glob matching](https://en.wikipedia.org/wiki/Glob_(programming)
   through [minimatch](https://www.npmjs.org/package/minimatch). This example
-  adds autocompletion to `.txt` files.)
+  restricts autocompletion blacklisting to files that begin with a period.)
 
 3. In the document in which you want a citation, type '@' (the beginning of a
   Pandoc citation) and then begin to type the family name of any of the authors
@@ -120,6 +124,6 @@ still triggered by typing `@` and then part of an author’s name.
 
 ## Acknowledgements
 
-This package is built on top of saschagehlich’s
-[fork](https://github.com/saschagehlich/autocomplete-plus) of Atom’s standard
-autocomplete. In building it, I relied heavily on his [excellent tutorial](https://github.com/saschagehlich/autocomplete-plus/wiki/Tutorial:-Registering-and-creating-a-suggestion-provider).
+Many thanks to those few developers who work tirelessly to improve
+[autocomplete-plus](https://github.com/atom-community/autocomplete-plus).
+Without their hard work and support, this package could not exist.
