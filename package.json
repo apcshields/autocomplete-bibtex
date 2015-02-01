@@ -6,15 +6,16 @@
   "author": "apcshields",
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">0.185.0"
   },
   "dependencies": {
-    "autocomplete-plus-minimal": "git://github.com/apcshields/autocomplete-plus-minimal.git#v0.1.2",
     "fuzzaldrin": "~1.0.0",
     "sugar": "1.4.x",
     "underscore-plus": "~1.1.2",
-    "xregexp": "^2.0.0",
     "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.1.0"
+  },
+  "peerDependencies": {
+    "autocomplete-plus": "~2.0.0"
   },
   "repository": {
     "type": "git",
