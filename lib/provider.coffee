@@ -5,6 +5,22 @@ require "sugar"
 
 module.exports =
 class BibtexProvider
+  ###
+  For a while, I intended to continue using XRegExp with this `wordRegex`:
+
+  ```
+  wordRegex: XRegExp('(?:^|\\p{WhiteSpace})@[\\p{Letter}\\p{Number}\._-]*')
+  ```
+
+  But I found that the regular expression given here seems to work well. If
+  there are problems with Unicode characters, I can switch back to the other.
+
+  This regular expression is also more lenient about what punctuation it will
+  accept. Whereas the alternate only allows the punctuation which might be
+  expected in a BibTeX key, this will accept all sorts. It does not accept a
+  second `@`, as this would become confusing.
+  ###
+  wordRegex: /(?:^|\s)@[^\s@]*/
   constructor: ->
     @buildWordList(atom.config.get "autocomplete-bibtex.bibtex")
     atom.config.observe "autocomplete-bibtex.bibtex", (bibtexFiles) =>
@@ -20,14 +36,18 @@ class BibtexProvider
       blacklist: ''
       providerblacklist: '' # Give the user the option to configure this.
       requestHandler: (options) =>
-        prefix = options.prefix.normalize().replace(/^@/, '')
+        prefix = @prefixForCursor(options.cursor, options.buffer)
 
-        words = fuzzaldrin.filter @possibleWords, prefix, { key: 'author' }
+        return if not prefix.length or prefix[0] is not '@'
+
+        normalizedPrefix = options.prefix.normalize().replace(/^@/, '')
+
+        words = fuzzaldrin.filter @possibleWords, normalizedPrefix, { key: 'author' }
 
         suggestions = for word in words
           {
             word: @resultTemplate.replace('[key]', word.key)
-            prefix: "@#{prefix}" # The default word regexp strips the `@`, so we need to make sure that it is added but not, in case the regexp changes, duplicated.
+            prefix: prefix
             label: word.label
             renderLabelAsHtml: false
             className: '',
@@ -75,6 +95,20 @@ class BibtexProvider
       @bibtex = bibtex
     catch error
       console.error error
+
+  ###
+  This is a lightly modified version of AutocompleteManager.prefixForCursor
+  which allows autocomplete-bibtex to define its own wordRegex.
+
+  N.B. Setting `allowPrevious` to `false` is absolutely essential in order to
+  make this perform as expected.
+  ###
+  prefixForCursor: (cursor, buffer) =>
+    return '' unless buffer? and cursor?
+    start = cursor.getBeginningOfCurrentWordBufferPosition({ wordRegex: @wordRegex, allowPrevious: false })
+    end = cursor.getBufferPosition()
+    return '' unless start? and end?
+    buffer.getTextInRange([start, end])
 
   prettifyTitle: (title) ->
     if (colon = title.indexOf(':')) isnt -1 and title.words().length > 5
