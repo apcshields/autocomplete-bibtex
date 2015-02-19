@@ -57,7 +57,7 @@ class BibtexProvider
       dispose: ->
         # Your dispose logic here
 
-    @registration = atom.services.provide('autocomplete.provider', '1.0.0', { provider: provider })
+    return provider
 
   buildWordList: (bibtexFiles) =>
     possibleWords = []

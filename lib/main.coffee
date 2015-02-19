@@ -11,3 +11,6 @@ module.exports =
 
   deactivate: ->
     @provider.registration.dispose()
+
+  provide: ->
+    return { providers: [@provider] }
