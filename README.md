@@ -112,7 +112,6 @@ configuration variable in the package preferences or add another key to
   'bibtex': [
     '/path/to/references.bib'
   ]
-  'fileBlacklist': '!*.{md,markdown,pandoc}'
   'resultTemplate': '\footfullcite{[key]}'
 ```
 
