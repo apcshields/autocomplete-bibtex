@@ -22,6 +22,8 @@ class BibtexProvider
   ###
   wordRegex: /(?:^|\s)@[^\s@]*/
   constructor: ->
+    @bibtex = []
+
     @buildWordList(atom.config.get "autocomplete-bibtex.bibtex")
     atom.config.observe "autocomplete-bibtex.bibtex", (bibtexFiles) =>
       @buildWordList(bibtexFiles)
@@ -65,21 +67,22 @@ class BibtexProvider
     @readBibtexFiles(bibtexFiles)
 
     for citation in @bibtex
-      citation.entryTags.prettyTitle =
-        @prettifyTitle citation.entryTags.title
+      if citation.entryTags and citation.entryTags.title and citation.entryTags.author
+        citation.entryTags.prettyTitle =
+          @prettifyTitle citation.entryTags.title
 
-      citation.entryTags.authors =
-        @cleanAuthors citation.entryTags.author?.split ' and '
-      citation.entryTags.prettyAuthors =
-        @prettifyAuthors citation.entryTags.authors
+        citation.entryTags.authors =
+          @cleanAuthors citation.entryTags.author?.split ' and '
+        citation.entryTags.prettyAuthors =
+          @prettifyAuthors citation.entryTags.authors
 
-      for author in citation.entryTags.authors
-        possibleWords.push {
-          author: @prettifyName(author, yes),
-          key: citation.citationKey,
-          label: "#{citation.entryTags.prettyTitle} \
-            by #{citation.entryTags.prettyAuthors}"
-        }
+        for author in citation.entryTags.authors
+          possibleWords.push {
+            author: @prettifyName(author, yes),
+            key: citation.citationKey,
+            label: "#{citation.entryTags.prettyTitle} \
+              by #{citation.entryTags.prettyAuthors}"
+          }
 
     @possibleWords = possibleWords
 
@@ -88,9 +91,12 @@ class BibtexProvider
       bibtex = []
 
       for file in bibtexFiles
-        parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
+        if fs.statSync(file).isFile()
+          parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
 
-        bibtex = bibtex.concat parser.parse()
+          bibtex = bibtex.concat parser.parse()
+        else
+          console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
       @bibtex = bibtex
     catch error
@@ -111,13 +117,15 @@ class BibtexProvider
     buffer.getTextInRange([start, end])
 
   prettifyTitle: (title) ->
+    return if not title
+
     if (colon = title.indexOf(':')) isnt -1 and title.words().length > 5
       title = title.substring(0, colon)
 
     title.titleize().truncateOnWord 30, 'middle'
 
   cleanAuthors: (authors) ->
-    if not authors? then return [{ familyName: 'Unknown' }]
+    return [{ familyName: 'Unknown' }] if not authors?
 
     for author in authors
       [familyName, personalName] =
