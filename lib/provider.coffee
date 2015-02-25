@@ -87,6 +87,11 @@ class BibtexProvider
     @possibleWords = possibleWords
 
   readBibtexFiles: (bibtexFiles) =>
+    
+    # CHANGED make sure that it works even with as single file
+    if typeof bibtexFiles is 'string'
+      bibtexFiles = [bibtexFiles]
+    
     try
       bibtex = []
 
