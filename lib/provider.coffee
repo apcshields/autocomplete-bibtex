@@ -2,6 +2,7 @@ fs = require "fs"
 bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
 require "sugar"
+XRegExp = require('xregexp').XRegExp
 
 module.exports =
 class BibtexProvider
@@ -20,7 +21,7 @@ class BibtexProvider
   expected in a BibTeX key, this will accept all sorts. It does not accept a
   second `@`, as this would become confusing.
   ###
-  wordRegex: /(?:^|\s)@[^\s@]*/
+  wordRegex: XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
   constructor: ->
     @bibtex = []
 
@@ -40,9 +41,21 @@ class BibtexProvider
       requestHandler: (options) =>
         prefix = @prefixForCursor(options.cursor, options.buffer)
 
+        ###
+        Because the regular expression may a single whitespace or punctuation
+        character before the part in which we're interested. Since this is the
+        only case in which an `@` could be the second character, that's a simple
+        way to test for it.
+
+        (I put this here, and not in the `prefixForCursor` method because I want
+        to keep that method as similar to the `AutocompleteManager` method of
+        the same name as I can.)
+        ###
+        prefix = prefix[1..] if prefix[1] is '@'
+
         return if not prefix.length or prefix[0] is not '@'
 
-        normalizedPrefix = options.prefix.normalize().replace(/^@/, '')
+        normalizedPrefix = prefix.normalize().replace(/^@/, '')
 
         words = fuzzaldrin.filter @possibleWords, normalizedPrefix, { key: 'author' }
 

@@ -11,6 +11,7 @@
   "dependencies": {
     "fuzzaldrin": "~1.0.0",
     "sugar": "1.4.x",
+    "xregexp": "^2.0.0",
     "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.1.0"
   },
   "repository": {
