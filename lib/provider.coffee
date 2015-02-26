@@ -61,8 +61,8 @@ class BibtexProvider
 
         suggestions = for word in words
           {
-            word: ' ' + @resultTemplate.replace('[key]', word.key)
-            prefix: prefix
+            word: @resultTemplate.replace('[key]', word.key)
+            prefix: '@' + normalizedPrefix
             label: word.label
             renderLabelAsHtml: false
             className: '',
