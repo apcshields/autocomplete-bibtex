@@ -1,10 +1,16 @@
 BibtexProvider = require "./provider"
 
 module.exports =
-  configDefaults:
-    bibtex: ""
-    scope: ".source.gfm"
-    resultTemplate: "@[key]"
+  config:
+    bibtex:
+      type: 'string'
+      default: ''
+    scope:
+      type: 'string'
+      default: '.source.gfm'
+    resultTemplate:
+      type: 'string'
+      default: '@[key]'
 
   activate: ->
     @provider = new BibtexProvider()
