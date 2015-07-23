@@ -22,21 +22,29 @@ class BibtexProvider
   second `@`, as this would become confusing.
   ###
   wordRegex: XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
-  constructor: ->
-    @bibtex = []
+  atom.deserializers.add(this)
+  # @version: 2
+  bibtex = []
+  constructor: (state) ->
+    if bibtex
+      @bibtex = state.bibtex
+      @possibleWords = state.possibleWords
+    else
+      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
-    @buildWordList(atom.config.get "autocomplete-bibtex.bibtex")
-    atom.config.observe "autocomplete-bibtex.bibtex", (bibtexFiles) =>
-      @buildWordList(bibtexFiles)
+    atom.config.onDidChange "autocomplete-bibtex.bibtex", (bibtexFiles) =>
+      @buildWordListFromFiles(bibtexFiles)
 
     resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
     atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
       @resultTemplate = resultTemplate
 
-    provider =
+    @provider =
       id: 'autocomplete-bibtex-bibtexprovider'
       selector: atom.config.get "autocomplete-bibtex.scope"
       blacklist: ''
+      # inclusionPriority: 1 #FIXME hack to prevent default provider in MD file
+      # excludeLowerPriority: true
       providerblacklist: '' # Give the user the option to configure this.
       requestHandler: (options) =>
         prefix = @prefixForCursor(options.cursor, options.buffer)
@@ -72,12 +80,19 @@ class BibtexProvider
       dispose: ->
         # Your dispose logic here
 
-    return provider
+    # return provider
+
+  serialize: -> {
+    deserializer: 'BibtexProvider'
+    data: {bibtex: @bibtex, possibleWords: @possibleWords }
+    # version: @constructor.version
+  }
+
+  @deserialize: ({data}) -> new BibtexProvider(data)
+
 
   buildWordList: (bibtexFiles) =>
     possibleWords = []
-
-    @readBibtexFiles(bibtexFiles)
 
     for citation in @bibtex
       if citation.entryTags and citation.entryTags.title and citation.entryTags.author
@@ -99,8 +114,12 @@ class BibtexProvider
 
     @possibleWords = possibleWords
 
+  buildWordListFromFiles: (bibtexFiles) =>
+    @readBibtexFiles(bibtexFiles)
+    @buildWordList()
+
   readBibtexFiles: (bibtexFiles) =>
-    # Make sure our list of BibTeX files is an array, even if it's only one file.
+    # Make sure our list of BibTeX files is an array, even if it's only one file
     if not Array.isArray(bibtexFiles)
       bibtexFiles = [bibtexFiles]
 
