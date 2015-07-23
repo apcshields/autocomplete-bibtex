@@ -1,7 +1,7 @@
 fs = require "fs"
 bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
-require "sugar"
+# require "sugar"
 XRegExp = require('xregexp').XRegExp
 
 module.exports =
