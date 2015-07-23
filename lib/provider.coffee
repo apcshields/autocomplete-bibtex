@@ -1,8 +1,13 @@
 fs = require "fs"
 bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
-# require "sugar"
 XRegExp = require('xregexp').XRegExp
+
+# "sugar" provides string methods at expense of loading time
+# require "sugar"
+# titlecaps and some logic reasonably replicates the functions
+titlecaps = require "./titlecaps"
+
 
 module.exports =
 class BibtexProvider
@@ -26,10 +31,13 @@ class BibtexProvider
   # @version: 2
   bibtex = []
   constructor: (state) ->
-    if bibtex
+    if state and Object.keys(state).length != 0
       @bibtex = state.bibtex
       @possibleWords = state.possibleWords
     else
+      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
+
+    if @bibtex.length == 0
       @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
     atom.config.onDidChange "autocomplete-bibtex.bibtex", (bibtexFiles) =>
@@ -91,9 +99,8 @@ class BibtexProvider
   @deserialize: ({data}) -> new BibtexProvider(data)
 
 
-  buildWordList: (bibtexFiles) =>
+  buildWordList: () =>
     possibleWords = []
-
     for citation in @bibtex
       if citation.entryTags and citation.entryTags.title and citation.entryTags.author
         citation.entryTags.prettyTitle =
@@ -154,11 +161,18 @@ class BibtexProvider
 
   prettifyTitle: (title) ->
     return if not title
-
-    if (colon = title.indexOf(':')) isnt -1 and title.words().length > 5
+    if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
       title = title.substring(0, colon)
 
-    title.titleize().truncateOnWord 30, 'middle'
+    # make title into titlecaps, trim length to 30 chars(ish) and add elipsis
+    title = titlecaps(title)
+    l = if title.length > 30 then 30 else title.length
+    title = title.slice(0, l)
+    n = title.lastIndexOf(" ")
+    title = title.slice(0, n) + "..."
+
+    # sugar function alternative
+    # title.titleize().truncateOnWord 30, 'middle'
 
   cleanAuthors: (authors) ->
     return [{ familyName: 'Unknown' }] if not authors?

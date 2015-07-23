@@ -17,7 +17,6 @@ module.exports =
   activate: (state) ->
     reload = false
     if state
-
       bibtexFiles = atom.config.get "autocomplete-bibtex.bibtex"
       if not Array.isArray(bibtexFiles)
         bibtexFiles = [bibtexFiles]
@@ -30,10 +29,14 @@ module.exports =
 
     # Need to distinguish between the Autocomplete provider and the
     # containing class (which holds the serialize fn)
-    @bibtexProvider = if state and reload is false
-      atom.deserializers.deserialize(state.provider)
+    if state and reload is false
+      @bibtexProvider = atom.deserializers.deserialize(state.provider)
+      #deserializer produces "undefined" if it fails, so double check
+      if not @bibtexProvider
+        @bibtexProvider = new BibtexProvider()
     else
-      new BibtexProvider()
+      @bibtexProvider = new BibtexProvider()
+
     @provider = @bibtexProvider.provider
 
   deactivate: ->
