@@ -1,8 +1,13 @@
 fs = require "fs"
 bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
-require "sugar"
 XRegExp = require('xregexp').XRegExp
+
+# "sugar" provides string methods at expense of loading time
+# require "sugar"
+# titlecaps and some logic reasonably replicates the functions
+titlecaps = require "./titlecaps"
+
 
 module.exports =
 class BibtexProvider
@@ -22,21 +27,32 @@ class BibtexProvider
   second `@`, as this would become confusing.
   ###
   wordRegex: XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
-  constructor: ->
-    @bibtex = []
+  atom.deserializers.add(this)
+  # @version: 2
+  bibtex = []
+  constructor: (state) ->
+    if state and Object.keys(state).length != 0
+      @bibtex = state.bibtex
+      @possibleWords = state.possibleWords
+    else
+      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
-    @buildWordList(atom.config.get "autocomplete-bibtex.bibtex")
-    atom.config.observe "autocomplete-bibtex.bibtex", (bibtexFiles) =>
-      @buildWordList(bibtexFiles)
+    if @bibtex.length == 0
+      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
+
+    atom.config.onDidChange "autocomplete-bibtex.bibtex", (bibtexFiles) =>
+      @buildWordListFromFiles(bibtexFiles)
 
     resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
     atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
       @resultTemplate = resultTemplate
 
-    provider =
+    @provider =
       id: 'autocomplete-bibtex-bibtexprovider'
       selector: atom.config.get "autocomplete-bibtex.scope"
       blacklist: ''
+      # inclusionPriority: 1 #FIXME hack to prevent default provider in MD file
+      # excludeLowerPriority: true
       providerblacklist: '' # Give the user the option to configure this.
       requestHandler: (options) =>
         prefix = @prefixForCursor(options.cursor, options.buffer)
@@ -72,13 +88,19 @@ class BibtexProvider
       dispose: ->
         # Your dispose logic here
 
-    return provider
+    # return provider
 
-  buildWordList: (bibtexFiles) =>
+  serialize: -> {
+    deserializer: 'BibtexProvider'
+    data: {bibtex: @bibtex, possibleWords: @possibleWords }
+    # version: @constructor.version
+  }
+
+  @deserialize: ({data}) -> new BibtexProvider(data)
+
+
+  buildWordList: () =>
     possibleWords = []
-
-    @readBibtexFiles(bibtexFiles)
-
     for citation in @bibtex
       if citation.entryTags and citation.entryTags.title and citation.entryTags.author
         citation.entryTags.prettyTitle =
@@ -99,8 +121,12 @@ class BibtexProvider
 
     @possibleWords = possibleWords
 
+  buildWordListFromFiles: (bibtexFiles) =>
+    @readBibtexFiles(bibtexFiles)
+    @buildWordList()
+
   readBibtexFiles: (bibtexFiles) =>
-    # Make sure our list of BibTeX files is an array, even if it's only one file.
+    # Make sure our list of BibTeX files is an array, even if it's only one file
     if not Array.isArray(bibtexFiles)
       bibtexFiles = [bibtexFiles]
 
@@ -135,11 +161,18 @@ class BibtexProvider
 
   prettifyTitle: (title) ->
     return if not title
-
-    if (colon = title.indexOf(':')) isnt -1 and title.words().length > 5
+    if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
       title = title.substring(0, colon)
 
-    title.titleize().truncateOnWord 30, 'middle'
+    # make title into titlecaps, trim length to 30 chars(ish) and add elipsis
+    title = titlecaps(title)
+    l = if title.length > 30 then 30 else title.length
+    title = title.slice(0, l)
+    n = title.lastIndexOf(" ")
+    title = title.slice(0, n) + "..."
+
+    # sugar function alternative
+    # title.titleize().truncateOnWord 30, 'middle'
 
   cleanAuthors: (authors) ->
     return [{ familyName: 'Unknown' }] if not authors?
