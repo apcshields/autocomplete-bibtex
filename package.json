@@ -1,7 +1,7 @@
 {
   "name": "autocomplete-bibtex",
   "main": "./lib/main",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "description": "Adds BibTeX key autocompletion to autocomplete+",
   "author": "apcshields",
   "license": "MIT",

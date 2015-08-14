@@ -2,10 +2,6 @@ fs = require "fs"
 bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
 XRegExp = require('xregexp').XRegExp
-
-# "sugar" provides string methods at expense of loading time
-# require "sugar"
-# titlecaps and some logic reasonably replicates the functions
 titlecaps = require "./titlecaps"
 
 
@@ -27,9 +23,11 @@ class BibtexProvider
   second `@`, as this would become confusing.
   ###
   wordRegex: XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
-  atom.deserializers.add(this)
-  # @version: 2
   bibtex = []
+
+  atom.deserializers.add(this)
+  @deserialize: ({data}) -> new BibtexProvider(data)
+
   constructor: (state) ->
     if state and Object.keys(state).length != 0
       @bibtex = state.bibtex
@@ -92,12 +90,8 @@ class BibtexProvider
 
   serialize: -> {
     deserializer: 'BibtexProvider'
-    data: {bibtex: @bibtex, possibleWords: @possibleWords }
-    # version: @constructor.version
+    data: { bibtex: @bibtex, possibleWords: @possibleWords }
   }
-
-  @deserialize: ({data}) -> new BibtexProvider(data)
-
 
   buildWordList: () =>
     possibleWords = []

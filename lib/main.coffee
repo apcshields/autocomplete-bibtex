@@ -5,8 +5,10 @@ BibtexProvider = require "./provider"
 module.exports =
   config:
     bibtex:
-      type: 'string'
-      default: ''
+      type: 'array'
+      default: []
+      items:
+        type: 'string'
     scope:
       type: 'string'
       default: '.source.gfm'
