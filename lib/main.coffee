@@ -1,6 +1,8 @@
 fs = require "fs"
+{CompositeDisposable} = require 'atom'
 
 BibtexProvider = require "./provider"
+BibView = require './bib-view'
 
 module.exports =
   config:
@@ -41,8 +43,24 @@ module.exports =
 
     @provider = @bibtexProvider.provider
 
+    # @bibItems = @bibtexProvider.possibleWords
+
+    @bibView = new BibView(@bibtexProvider.bibtex)
+
+    @commands = new CompositeDisposable()
+
+    # TODO figure out how to show/hide commands for grammars
+    @commands.add atom.commands.add 'atom-workspace',
+        # 'bibliography:search': => @bibView.toggle()
+        'bibliography:search': => @showSearch()
+
+  showSearch: ->
+    @bibView = new BibView(@bibtexProvider.bibtex)
+    @bibView.show()
+
   deactivate: ->
     @provider.registration.dispose()
+    @commands.dispose()
 
   serialize: ->
     state = {
