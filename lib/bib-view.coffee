@@ -10,7 +10,9 @@ class BibView extends SelectListView
     @setItems(bibtex)
     @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
     # @panel.show()
-
+    @resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
+    atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
+      @resultTemplate = resultTemplate
 
   show: ->
     @panel.show()
@@ -28,11 +30,15 @@ class BibView extends SelectListView
     if item.entryTags and item.entryTags.title and item.entryTags.author
       return "<li><span>#{item.entryTags.author}</span>&nbsp;<span>#{item.entryTags.title}</span></li>"
     else
-      return "<li></li>"
+      return ""
 
   confirmed: (item)->
     #insert ref at cursor
     console.log item
+    editor = atom.workspace.getActiveTextEditor()
+    citekey = @resultTemplate.replace('[key]', item.citationKey)
+    editor.insertText(citekey)
+    @panel.hide()
 
   getFilterKey: ->
     'label'
