@@ -96,15 +96,16 @@ class ReferenceProvider
   buildWordList: () =>
     possibleWords = []
     for citation in @references
-      if citation.entryTags and citation.entryTags.title and (citation.entryTags.author or citation.entryTags.editor)
+      if citation.entryTags and citation.entryTags.title and (citation.entryTags.authors or citation.entryTags.author or citation.entryTags.editor)
+
         citation.entryTags.prettyTitle =
           @prettifyTitle citation.entryTags.title
 
-        citation.entryTags.authors = []
-
-        if citation.entryTags.author?
-          citation.entryTags.authors =
-            citation.entryTags.authors.concat @cleanAuthors citation.entryTags.author.split ' and '
+        if not citation.entryTags.authors
+          citation.entryTags.authors = []
+          if citation.entryTags.author?
+            citation.entryTags.authors =
+              citation.entryTags.authors.concat @cleanAuthors citation.entryTags.author.split ' and '
 
         if citation.entryTags.editor?
           citation.entryTags.authors =
@@ -137,34 +138,31 @@ class ReferenceProvider
         # What type of file is this?
         ftype = file.split('.')
         ftype = ftype[ftype.length - 1]
-        console.warn("#{ftype}")
 
         if fs.statSync(file).isFile()
 
           if ftype is "bib"
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
             references = references.concat parser.parse()
-            console.log(parser.parse())
 
           if ftype is "yaml"
             parsedyaml = yaml.load fs.readFileSync(file, 'utf-8')
             # Convert yaml to parsed bibtex format
-            yamlref = []
             for r in parsedyaml
               # NOTE this is dirty -- but it works for now
-              t_ref = Object
+              t_ref = {}
               t_ref.citationKey = r['id']
               t_ref.entryType = r['type']
-              t_ref.entryTags = Object
-              # FIXME test
-              t_ref.entryTags.authors = []
-              for a in r['author']:
-                na = Object
+              t_ref.entryTags = {}
+              authors = []
+              for a in r['author']
+                na = {}
                 na.familyName = a['family']
                 na.personalName = a['given']
-                t_ref.entryTags.authors = t_ref.entryTags.authors.concat na
-              yamlref = yamlref.concat t_ref
-              console.log(yamlref)
+                authors = authors.concat na
+              t_ref.entryTags.authors = authors
+              t_ref.entryTags.title = r['title']
+              references = references.concat t_ref
 
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
