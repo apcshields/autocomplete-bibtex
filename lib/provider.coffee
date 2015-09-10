@@ -135,18 +135,37 @@ class ReferenceProvider
       references = []
       for file in referenceFiles
         # What type of file is this?
-        console.warn("'#{file}'")
         ftype = file.split('.')
-        console.warn("'#{ftype}'")
         ftype = ftype[ftype.length - 1]
-        console.warn("'#{ftype}'")
+        console.warn("#{ftype}")
+
         if fs.statSync(file).isFile()
+
           if ftype is "bib"
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
-            console.warn("#{parser.parse()}")
             references = references.concat parser.parse()
-          else
-            alert("SOMETHING ELSE")
+            console.log(parser.parse())
+
+          if ftype is "yaml"
+            parsedyaml = yaml.load fs.readFileSync(file, 'utf-8')
+            # Convert yaml to parsed bibtex format
+            yamlref = []
+            for r in parsedyaml
+              # NOTE this is dirty -- but it works for now
+              t_ref = Object
+              t_ref.citationKey = r['id']
+              t_ref.entryType = r['type']
+              t_ref.entryTags = Object
+              # FIXME test
+              t_ref.entryTags.authors = []
+              for a in r['author']:
+                na = Object
+                na.familyName = a['family']
+                na.personalName = a['given']
+                t_ref.entryTags.authors = t_ref.entryTags.authors.concat na
+              yamlref = yamlref.concat t_ref
+              console.log(yamlref)
+
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
