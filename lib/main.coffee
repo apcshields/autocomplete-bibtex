@@ -1,10 +1,10 @@
 fs = require "fs"
 
-BibtexProvider = require "./provider"
+ReferenceProvider = require "./provider"
 
 module.exports =
   config:
-    bibtex:
+    references:
       type: 'array'
       default: []
       items:
@@ -19,11 +19,11 @@ module.exports =
   activate: (state) ->
     reload = false
     if state
-      bibtexFiles = atom.config.get "autocomplete-bibtex.bibtex"
-      if not Array.isArray(bibtexFiles)
-        bibtexFiles = [bibtexFiles]
+      referenceFiles = atom.config.get "autocomplete-bibtex.references"
+      if not Array.isArray(referenceFiles)
+        referenceFiles = [referenceFiles]
       # reload everything if any files changed
-      for file in bibtexFiles
+      for file in referenceFiles
         stats = fs.statSync(file)
         if stats.isFile()
           if state.saveTime < stats.mtime.getTime()
@@ -32,21 +32,21 @@ module.exports =
     # Need to distinguish between the Autocomplete provider and the
     # containing class (which holds the serialize fn)
     if state and reload is false
-      @bibtexProvider = atom.deserializers.deserialize(state.provider)
+      @referenceProvider = atom.deserializers.deserialize(state.provider)
       #deserializer produces "undefined" if it fails, so double check
-      if not @bibtexProvider
-        @bibtexProvider = new BibtexProvider()
+      if not @referenceProvider
+        @referenceProvider = new ReferenceProvider()
     else
-      @bibtexProvider = new BibtexProvider()
+      @referenceProvider = new ReferenceProvider()
 
-    @provider = @bibtexProvider.provider
+    @provider = @referenceProvider.provider
 
   deactivate: ->
     @provider.registration.dispose()
 
   serialize: ->
     state = {
-      provider: @bibtexProvider.serialize()
+      provider: @referenceProvider.serialize()
       saveTime: new Date().getTime()
     }
     return state
