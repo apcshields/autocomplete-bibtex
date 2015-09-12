@@ -12,7 +12,6 @@
     "fuzzaldrin": "~1.0.0",
     "sugar": "1.4.x",
     "xregexp": "^2.0.0",
-    "yaml-js": "^0.1.1",
     "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.2.0"
   },
   "repository": {

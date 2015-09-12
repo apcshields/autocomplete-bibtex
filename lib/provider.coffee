@@ -3,10 +3,10 @@ bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
 XRegExp = require('xregexp').XRegExp
 titlecaps = require "./titlecaps"
-yaml = require "yaml-js"
+
 
 module.exports =
-class ReferenceProvider
+class BibtexProvider
   ###
   For a while, I intended to continue using XRegExp with this `wordRegex`:
 
@@ -26,20 +26,20 @@ class ReferenceProvider
   bibtex = []
 
   atom.deserializers.add(this)
-  @deserialize: ({data}) -> new ReferenceProvider(data)
+  @deserialize: ({data}) -> new BibtexProvider(data)
 
   constructor: (state) ->
     if state and Object.keys(state).length != 0
-      @references = state.references
+      @bibtex = state.bibtex
       @possibleWords = state.possibleWords
     else
-      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.references")
+      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
-    if @references.length == 0
-      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.references")
+    if @bibtex.length == 0
+      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
-    atom.config.onDidChange "autocomplete-bibtex.references", (referenceFiles) =>
-      @buildWordListFromFiles(referenceFiles)
+    atom.config.onDidChange "autocomplete-bibtex.bibtex", (bibtexFiles) =>
+      @buildWordListFromFiles(bibtexFiles)
 
     resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
     atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
@@ -51,7 +51,7 @@ class ReferenceProvider
       blacklist: ''
       # inclusionPriority: 1 #FIXME hack to prevent default provider in MD file
       # excludeLowerPriority: true
-      providerblacklist: '' #TODO Give the user the option to configure this.
+      providerblacklist: '' # Give the user the option to configure this.
       requestHandler: (options) =>
         prefix = @prefixForCursor(options.cursor, options.buffer)
 
@@ -89,23 +89,22 @@ class ReferenceProvider
     # return provider
 
   serialize: -> {
-    deserializer: 'ReferenceProvider'
-    data: { references: @references, possibleWords: @possibleWords }
+    deserializer: 'BibtexProvider'
+    data: { bibtex: @bibtex, possibleWords: @possibleWords }
   }
 
   buildWordList: () =>
     possibleWords = []
-    for citation in @references
-      if citation.entryTags and citation.entryTags.title and (citation.entryTags.authors or citation.entryTags.author or citation.entryTags.editor)
-
+    for citation in @bibtex
+      if citation.entryTags and citation.entryTags.title and (citation.entryTags.author or citation.entryTags.editor)
         citation.entryTags.prettyTitle =
           @prettifyTitle citation.entryTags.title
 
-        if not citation.entryTags.authors
-          citation.entryTags.authors = []
-          if citation.entryTags.author?
-            citation.entryTags.authors =
-              citation.entryTags.authors.concat @cleanAuthors citation.entryTags.author.split ' and '
+        citation.entryTags.authors = []
+
+        if citation.entryTags.author?
+          citation.entryTags.authors =
+            citation.entryTags.authors.concat @cleanAuthors citation.entryTags.author.split ' and '
 
         if citation.entryTags.editor?
           citation.entryTags.authors =
@@ -124,50 +123,27 @@ class ReferenceProvider
 
     @possibleWords = possibleWords
 
-  buildWordListFromFiles: (referenceFiles) =>
-    @readReferenceFiles(referenceFiles)
+  buildWordListFromFiles: (bibtexFiles) =>
+    @readBibtexFiles(bibtexFiles)
     @buildWordList()
 
-  readReferenceFiles: (referenceFiles) =>
-    # Make sure our list of files is an array, even if it's only one file
-    if not Array.isArray(referenceFiles)
-      referenceFiles = [referenceFiles]
+  readBibtexFiles: (bibtexFiles) =>
+    # Make sure our list of BibTeX files is an array, even if it's only one file
+    if not Array.isArray(bibtexFiles)
+      bibtexFiles = [bibtexFiles]
+
     try
-      references = []
-      for file in referenceFiles
-        # What type of file is this?
-        ftype = file.split('.')
-        ftype = ftype[ftype.length - 1]
+      bibtex = []
 
+      for file in bibtexFiles
         if fs.statSync(file).isFile()
+          parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
 
-          if ftype is "bib"
-            parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
-            references = references.concat parser.parse()
-
-          if ftype is "yaml"
-            parsedyaml = yaml.load fs.readFileSync(file, 'utf-8')
-            # Convert yaml to parsed bibtex format
-            for r in parsedyaml
-              # NOTE this is dirty -- but it works for now
-              t_ref = {}
-              t_ref.citationKey = r['id']
-              t_ref.entryType = r['type']
-              t_ref.entryTags = {}
-              authors = []
-              for a in r['author']
-                na = {}
-                na.familyName = a['family']
-                na.personalName = a['given']
-                authors = authors.concat na
-              t_ref.entryTags.authors = authors
-              t_ref.entryTags.title = r['title']
-              references = references.concat t_ref
-
+          bibtex = bibtex.concat parser.parse()
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
-      @references = references
+      @bibtex = bibtex
     catch error
       console.error error
 
