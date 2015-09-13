@@ -186,7 +186,7 @@ class ReferenceProvider
     if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
       title = title.substring(0, colon)
 
-    # make title into titlecaps, trim length to 30 chars(ish) and add elipsis
+    # make title into titlecaps, trim length to 70 chars(ish) and add elipsis
     title = titlecaps(title)
     l = if title.length > 70 then 70 else title.length
     title = title.slice(0, l)
