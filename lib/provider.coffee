@@ -29,6 +29,8 @@ class ReferenceProvider
     atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
       @resultTemplate = resultTemplate
 
+    allwords = @possibleWords
+
     @provider =
       selector: atom.config.get "autocomplete-bibtex.scope"
       disableForSelector: ".comment"
@@ -41,7 +43,7 @@ class ReferenceProvider
           if prefix[0] == "@"
             p = prefix.normalize().replace(/^@/, '')
             suggestions = []
-            for word in fuzzaldrin.filter state.possibleWords, p, { key: 'author' }
+            for word in fuzzaldrin.filter allwords, p, { key: 'author' }
               suggestion = {
                 text: word.key
                 displayText: word.label
