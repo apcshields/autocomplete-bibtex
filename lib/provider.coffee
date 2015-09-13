@@ -145,24 +145,15 @@ class ReferenceProvider
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
             references = references.concat parser.parse()
 
+          if ftype is "json"
+            citeproc = JSON.parse fs.readFileSync(file, 'utf-8')
+            citeproc_refs = parseCiteproc citeproc
+            references = references.concat citeproc_refs
+
           if ftype is "yaml"
-            parsedyaml = yaml.load fs.readFileSync(file, 'utf-8')
-            # Convert yaml to parsed bibtex format
-            for r in parsedyaml
-              # NOTE this is dirty -- but it works for now
-              t_ref = {}
-              t_ref.citationKey = r['id']
-              t_ref.entryType = r['type']
-              t_ref.entryTags = {}
-              authors = []
-              for a in r['author']
-                na = {}
-                na.familyName = a['family']
-                na.personalName = a['given']
-                authors = authors.concat na
-              t_ref.entryTags.authors = authors
-              t_ref.entryTags.title = r['title']
-              references = references.concat t_ref
+            citeproc = yaml.load fs.readFileSync(file, 'utf-8')
+            citeproc_refs = parseCiteproc citeproc
+            references = references.concat citeproc_refs
 
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
@@ -170,6 +161,34 @@ class ReferenceProvider
       @references = references
     catch error
       console.error error
+
+  ### These next fuctions parse citeproc
+
+  ###
+  parseCiteproc: (cp) ->
+    # Convert yaml to parsed bibtex format
+    cp_references = []
+    for ref in cp
+      # NOTE this is dirty -- but it works for now
+      cp_object = {}
+      cp_object.citationKey = ref['id']
+      cp_object.entryType = ref['type']
+      tags = {}
+      # Authors
+      if "author" in ref
+        authors = []
+        for author in ref['author']
+          na = {}
+          na.familyName = author['family']
+          na.personalName = author['given']
+          authors = authors.concat na
+        tags.authors = authors
+      # Title
+      tags.title = ref['title']
+      cp_object.entryTags = tags
+      cp_references = cp_references.concat cp_object
+    return cp_references
+
 
   ###
   This is a lightly modified version of AutocompleteManager.prefixForCursor
