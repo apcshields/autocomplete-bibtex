@@ -8,28 +8,11 @@ yaml = require "yaml-js"
 
 module.exports =
 class ReferenceProvider
-  ###
-  For a while, I intended to continue using XRegExp with this `wordRegex`:
-
-  ```
-  wordRegex: XRegExp('(?:^|\\p{WhiteSpace})@[\\p{Letter}\\p{Number}\._-]*')
-  ```
-
-  But I found that the regular expression given here seems to work well. If
-  there are problems with Unicode characters, I can switch back to the other.
-
-  This regular expression is also more lenient about what punctuation it will
-  accept. Whereas the alternate only allows the punctuation which might be
-  expected in a BibTeX key, this will accept all sorts. It does not accept a
-  second `@`, as this would become confusing.
-  ###
-  wordRegex: XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
 
   atom.deserializers.add(this)
   @deserialize: ({data}) -> new ReferenceProvider(data)
 
   constructor: (state) ->
-    console.log state
     if state and Object.keys(state).length != 0
       @references = state.references
       @possibleWords = state.possibleWords
@@ -49,27 +32,35 @@ class ReferenceProvider
     @provider =
       selector: atom.config.get "autocomplete-bibtex.scope"
       disableForSelector: ".comment"
+      inclusionPriority: 1
+      excludeLowerPriority: true
 
       getSuggestions: ({editor, bufferPosition}) ->
         prefix = @getPrefix(editor, bufferPosition)
         new Promise (resolve) ->
-          suggestions = []
-          for word in fuzzaldrin.filter state.possibleWords, prefix.normalize().replace(/^@/, ''), { key: 'author' }
-            suggestion = {
-              text: word.key
-              displayText: word.label
-              leftLabel: word.key
-              type: "constant"
-              iconHTML: '<i class="icon-move-right"></i>'
-            }
-            suggestions = suggestions.concat suggestion
-          resolve(suggestions)
+          if prefix[0] == "@"
+            p = prefix.normalize().replace(/^@/, '')
+            suggestions = []
+            for word in fuzzaldrin.filter state.possibleWords, p, { key: 'author' }
+              suggestion = {
+                text: word.key
+                displayText: word.label
+                leftLabel: word.key
+                type: "constant"
+                iconHTML: '<i class="icon-move-right"></i>'
+              }
+              suggestions = suggestions.concat suggestion
+            resolve(suggestions)
 
       getPrefix: (editor, bufferPosition) ->
         # Whatever your prefix regex might be
-        regex = XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
+        regex = /@[\w-]+/
+        wordregex = XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
+        cursor = editor.getCursors()[0]
+        start = cursor.getBeginningOfCurrentWordBufferPosition({ wordRegex: wordregex, allowPrevious: false })
+        end = bufferPosition
         # Get the text for the line up to the triggered buffer position
-        line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
+        line = editor.getTextInRange([start, bufferPosition])
         # Match the regex to the line, and return the match
         line.match(regex)?[0] or ''
 
