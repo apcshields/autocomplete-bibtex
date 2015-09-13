@@ -183,6 +183,15 @@ class ReferenceProvider
           na.personalName = author['given']
           authors = authors.concat na
         tags.authors = authors
+      # Editors
+      if "editor" in ref
+        editors = []
+        for editor in ref['editor']
+          na = {}
+          na.familyName = editor['family']
+          na.personalName = editor['given']
+          editors = editors.concat na
+        tags.editors = editors
       # Title
       tags.title = ref['title']
       cp_object.entryTags = tags
