@@ -3,6 +3,7 @@ bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
 XRegExp = require('xregexp').XRegExp
 titlecaps = require "./titlecaps"
+citeproc = require "./citeproc"
 yaml = require "yaml-js"
 
 module.exports =
@@ -141,62 +142,23 @@ class ReferenceProvider
         ftype = ftype[ftype.length - 1]
 
         if fs.statSync(file).isFile()
-
           if ftype is "bib"
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
             references = references.concat parser.parse()
-
-          if ftype is "json"
-            true
-            #citeproc = JSON.parse fs.readFileSync(file, 'utf-8')
-            #citeproc_refs = parseCiteproc(citeproc)
-            #references = references.concat citeproc_refs
-
-          if ftype is "yaml"
-            true
-            #citeproc = yaml.load fs.readFileSync(file, 'utf-8')
-            #citeproc_refs = parseCiteproc(citeproc)
-            #references = references.concat citeproc_refs
-
+          # if ftype is "json"
+          #   citeproc = JSON.parse fs.readFileSync(file, 'utf-8')
+          #   citeproc_refs = citeproc.parse citeproc
+          #   references = references.concat citeproc_refs
+          # if ftype is "yaml"
+          #   citeproc = yaml.load fs.readFileSync(file, 'utf-8')
+          #   citeproc_refs = citeproc.parse citeproc
+          #   references = references.concat citeproc_refs
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
       @references = references
     catch error
       console.error error
-
-  parseCiteproc: (cp) =>
-    # Convert yaml to parsed bibtex format
-    cp_references = []
-    for ref in cp
-      # NOTE this is dirty -- but it works for now
-      cp_object = {}
-      cp_object.citationKey = ref['id']
-      cp_object.entryType = ref['type']
-      tags = {}
-      # Authors
-      if "author" in ref
-        authors = []
-        for author in ref['author']
-          na = {}
-          na.familyName = author['family']
-          na.personalName = author['given']
-          authors = authors.concat na
-        tags.authors = authors
-      # Editors
-      if "editor" in ref
-        editors = []
-        for editor in ref['editor']
-          na = {}
-          na.familyName = editor['family']
-          na.personalName = editor['given']
-          editors = editors.concat na
-        tags.editors = editors
-      # Title
-      tags.title = ref['title']
-      cp_object.entryTags = tags
-      cp_references = cp_references.concat cp_object
-    return cp_references
 
   ###
   This is a lightly modified version of AutocompleteManager.prefixForCursor
