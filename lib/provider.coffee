@@ -165,6 +165,39 @@ class ReferenceProvider
     catch error
       console.error error
 
+  parseCiteproc: (cp) =>
+    # Convert yaml to parsed bibtex format
+    cp_references = []
+    for ref in cp
+      # NOTE this is dirty -- but it works for now
+      cp_object = {}
+      cp_object.citationKey = ref['id']
+      cp_object.entryType = ref['type']
+      tags = {}
+      # Authors
+      if "author" in ref
+        authors = []
+        for author in ref['author']
+          na = {}
+          na.familyName = author['family']
+          na.personalName = author['given']
+          authors = authors.concat na
+        tags.authors = authors
+      # Editors
+      if "editor" in ref
+        editors = []
+        for editor in ref['editor']
+          na = {}
+          na.familyName = editor['family']
+          na.personalName = editor['given']
+          editors = editors.concat na
+        tags.editors = editors
+      # Title
+      tags.title = ref['title']
+      cp_object.entryTags = tags
+      cp_references = cp_references.concat cp_object
+    return cp_references
+
   ###
   This is a lightly modified version of AutocompleteManager.prefixForCursor
   which allows autocomplete-bibtex to define its own wordRegex.
