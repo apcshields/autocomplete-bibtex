@@ -52,7 +52,7 @@ class ReferenceProvider
       blacklist: ''
       # inclusionPriority: 1 #FIXME hack to prevent default provider in MD file
       # excludeLowerPriority: true
-      providerblacklist: '' #TODO Give the user the option to configure this.
+      providerblacklist: '' # Give the user the option to configure this.
       requestHandler: (options) =>
         prefix = @prefixForCursor(options.cursor, options.buffer)
 
@@ -61,19 +61,14 @@ class ReferenceProvider
         character before the part in which we're interested. Since this is the
         only case in which an `@` could be the second character, that's a simple
         way to test for it.
-
         (I put this here, and not in the `prefixForCursor` method because I want
         to keep that method as similar to the `AutocompleteManager` method of
         the same name as I can.)
         ###
         prefix = prefix[1..] if prefix[1] is '@'
-
         return if not prefix.length or prefix[0] is not '@'
-
         normalizedPrefix = prefix.normalize().replace(/^@/, '')
-
         words = fuzzaldrin.filter @possibleWords, normalizedPrefix, { key: 'author' }
-
         suggestions = for word in words
           {
             word: @resultTemplate.replace('[key]', word.key)
@@ -188,10 +183,12 @@ class ReferenceProvider
 
     # make title into titlecaps, trim length to 70 chars(ish) and add elipsis
     title = titlecaps(title)
-    l = if title.length > 70 then 70 else title.length
-    title = title.slice(0, l)
-    n = title.lastIndexOf(" ")
-    title = title.slice(0, n) + "..."
+    cutoff = 45
+    if title.length > cutoff
+      title = title.slice(0, cutoff)
+      n = title.lastIndexOf(" ")
+      title = title.slice(0, n) + "..."
+    return title
 
     # sugar function alternative
     # title.titleize().truncateOnWord 30, 'middle'
