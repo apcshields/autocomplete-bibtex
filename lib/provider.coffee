@@ -131,28 +131,35 @@ class ReferenceProvider
     @buildWordList()
 
   readReferenceFiles: (referenceFiles) =>
+    if referenceFiles.newValue?
+      referenceFiles = referenceFiles.newValue
     # Make sure our list of files is an array, even if it's only one file
     if not Array.isArray(referenceFiles)
       referenceFiles = [referenceFiles]
     try
       references = []
       for file in referenceFiles
+
         # What type of file is this?
         ftype = file.split('.')
         ftype = ftype[ftype.length - 1]
 
         if fs.statSync(file).isFile()
+
           if ftype is "bib"
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
             references = references.concat parser.parse()
-          # if ftype is "json"
-          #   citeproc = JSON.parse fs.readFileSync(file, 'utf-8')
-          #   citeproc_refs = citeproc.parse citeproc
-          #   references = references.concat citeproc_refs
-          # if ftype is "yaml"
-          #   citeproc = yaml.load fs.readFileSync(file, 'utf-8')
-          #   citeproc_refs = citeproc.parse citeproc
-          #   references = references.concat citeproc_refs
+
+          if ftype is "json"
+            cpobject = JSON.parse fs.readFileSync(file, 'utf-8')
+            citeproc_refs = citeproc.parse cpobject
+            references = references.concat citeproc_refs
+
+          if ftype is "yaml"
+            cpobject = yaml.load fs.readFileSync(file, 'utf-8')
+            citeproc_refs = citeproc.parse cpobject
+            references = references.concat citeproc_refs
+
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
@@ -181,7 +188,7 @@ class ReferenceProvider
 
     # make title into titlecaps, trim length to 30 chars(ish) and add elipsis
     title = titlecaps(title)
-    l = if title.length > 30 then 30 else title.length
+    l = if title.length > 70 then 70 else title.length
     title = title.slice(0, l)
     n = title.lastIndexOf(" ")
     title = title.slice(0, n) + "..."
