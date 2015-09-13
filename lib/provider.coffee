@@ -24,12 +24,12 @@ class ReferenceProvider
   second `@`, as this would become confusing.
   ###
   wordRegex: XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
-  bibtex = []
 
   atom.deserializers.add(this)
   @deserialize: ({data}) -> new ReferenceProvider(data)
 
   constructor: (state) ->
+    console.log state
     if state and Object.keys(state).length != 0
       @references = state.references
       @possibleWords = state.possibleWords
@@ -47,40 +47,29 @@ class ReferenceProvider
       @resultTemplate = resultTemplate
 
     @provider =
-      id: 'autocomplete-bibtex-bibtexprovider'
       selector: atom.config.get "autocomplete-bibtex.scope"
-      blacklist: ''
-      # inclusionPriority: 1 #FIXME hack to prevent default provider in MD file
-      # excludeLowerPriority: true
-      providerblacklist: '' # Give the user the option to configure this.
-      requestHandler: (options) =>
-        prefix = @prefixForCursor(options.cursor, options.buffer)
+      disableForSelector: ".comment"
 
-        ###
-        Because the regular expression may a single whitespace or punctuation
-        character before the part in which we're interested. Since this is the
-        only case in which an `@` could be the second character, that's a simple
-        way to test for it.
-        (I put this here, and not in the `prefixForCursor` method because I want
-        to keep that method as similar to the `AutocompleteManager` method of
-        the same name as I can.)
-        ###
-        prefix = prefix[1..] if prefix[1] is '@'
-        return if not prefix.length or prefix[0] is not '@'
-        normalizedPrefix = prefix.normalize().replace(/^@/, '')
-        words = fuzzaldrin.filter @possibleWords, normalizedPrefix, { key: 'author' }
-        suggestions = for word in words
-          {
-            word: @resultTemplate.replace('[key]', word.key)
-            prefix: '@' + normalizedPrefix
-            label: word.label
-            renderLabelAsHtml: false
-            className: '',
-            onWillConfirm: -> # Do something here before the word has replaced the prefix (if you need, you usually don't need to),
-            onDidConfirm: -> # Do something here after the word has replaced the prefix (if you need, you usually don't need to)
-          }
-      dispose: ->
-        # Your dispose logic here
+      getSuggestions: ({editor, bufferPosition}) ->
+        prefix = @getPrefix(editor, bufferPosition)
+        new Promise (resolve) ->
+          suggestions = []
+          for word in fuzzaldrin.filter state.possibleWords, prefix.normalize().replace(/^@/, ''), { key: 'author' }
+            suggestion = {
+              text: word.key
+              displayText: word.label
+              leftLabel: word.key
+            }
+            suggestions = suggestions.concat suggestion
+          resolve(suggestions)
+
+      getPrefix: (editor, bufferPosition) ->
+        # Whatever your prefix regex might be
+        regex = XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
+        # Get the text for the line up to the triggered buffer position
+        line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
+        # Match the regex to the line, and return the match
+        line.match(regex)?[0] or ''
 
     # return provider
 
