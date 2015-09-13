@@ -146,20 +146,6 @@ class ReferenceProvider
     catch error
       console.error error
 
-  ###
-  This is a lightly modified version of AutocompleteManager.prefixForCursor
-  which allows autocomplete-bibtex to define its own wordRegex.
-
-  N.B. Setting `allowPrevious` to `false` is absolutely essential in order to
-  make this perform as expected.
-  ###
-  prefixForCursor: (cursor, buffer) =>
-    return '' unless buffer? and cursor?
-    start = cursor.getBeginningOfCurrentWordBufferPosition({ wordRegex: @wordRegex, allowPrevious: false })
-    end = cursor.getBufferPosition()
-    return '' unless start? and end?
-    buffer.getTextInRange([start, end])
-
   prettifyTitle: (title) ->
     return if not title
     if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
