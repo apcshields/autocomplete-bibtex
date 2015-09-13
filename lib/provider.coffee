@@ -96,6 +96,7 @@ class ReferenceProvider
   buildWordList: () =>
     possibleWords = []
     for citation in @references
+      console.log(citation)
       if citation.entryTags and citation.entryTags.title and (citation.entryTags.authors or citation.entryTags.author or citation.entryTags.editor)
 
         citation.entryTags.prettyTitle =
@@ -107,9 +108,10 @@ class ReferenceProvider
             citation.entryTags.authors =
               citation.entryTags.authors.concat @cleanAuthors citation.entryTags.author.split ' and '
 
-        if citation.entryTags.editor?
-          citation.entryTags.authors =
-            citation.entryTags.authors.concat @cleanAuthors citation.entryTags.editor.split ' and '
+        if not citation.entryTags.editors
+          if citation.entryTags.editor?
+            citation.entryTags.authors =
+              citation.entryTags.authors.concat @cleanAuthors citation.entryTags.editor.split ' and '
 
         citation.entryTags.prettyAuthors =
           @prettifyAuthors citation.entryTags.authors
@@ -135,25 +137,30 @@ class ReferenceProvider
     try
       references = []
       for file in referenceFiles
+        console.log(file)
         # What type of file is this?
         ftype = file.split('.')
         ftype = ftype[ftype.length - 1]
+        console.log(ftype)
 
         if fs.statSync(file).isFile()
 
           if ftype is "bib"
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
             references = references.concat parser.parse()
+            console.log(references)
 
           if ftype is "json"
             citeproc = JSON.parse fs.readFileSync(file, 'utf-8')
-            citeproc_refs = parseCiteproc citeproc
+            citeproc_refs = @parseCiteproc citeproc
             references = references.concat citeproc_refs
+            console.log(references)
 
           if ftype is "yaml"
             citeproc = yaml.load fs.readFileSync(file, 'utf-8')
-            citeproc_refs = parseCiteproc citeproc
+            citeproc_refs = @parseCiteproc citeproc
             references = references.concat citeproc_refs
+            console.log(references)
 
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
@@ -166,6 +173,8 @@ class ReferenceProvider
 
   ###
   parseCiteproc: (cp) ->
+    console.log("Parsing citeproc")
+    console.log(cp)
     # Convert yaml to parsed bibtex format
     cp_references = []
     for ref in cp
