@@ -52,7 +52,6 @@ class ReferenceProvider
                 type: "value"
                 iconHTML: '<i class="icon-mortar-board"></i>'
               }
-              console.log suggestion
               suggestions = suggestions.concat suggestion
             resolve(suggestions)
 
@@ -105,7 +104,6 @@ class ReferenceProvider
             by: "#{citation.entryTags.prettyAuthors}"
           }
 
-    console.log possibleWords
     @possibleWords = possibleWords
 
   buildWordListFromFiles: (referenceFiles) =>
@@ -145,7 +143,6 @@ class ReferenceProvider
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
-      console.log references
       @references = references
     catch error
       console.error error
