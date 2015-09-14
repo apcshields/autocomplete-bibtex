@@ -48,9 +48,11 @@ class ReferenceProvider
                 text: word.key
                 displayText: word.label
                 leftLabel: word.key
+                rightLabel: word.by
                 type: "value"
                 iconHTML: '<i class="icon-mortar-board"></i>'
               }
+              console.log suggestion
               suggestions = suggestions.concat suggestion
             resolve(suggestions)
 
@@ -97,12 +99,13 @@ class ReferenceProvider
 
         for author in citation.entryTags.authors
           possibleWords.push {
-            author: @prettifyName(author, yes),
+            author: @prettifyName(author),
             key: citation.citationKey,
-            label: "#{citation.entryTags.prettyTitle} \
-              by #{citation.entryTags.prettyAuthors}"
+            label: "#{citation.entryTags.prettyTitle}"
+            by: "#{citation.entryTags.prettyAuthors}"
           }
 
+    console.log possibleWords
     @possibleWords = possibleWords
 
   buildWordListFromFiles: (referenceFiles) =>
@@ -142,6 +145,7 @@ class ReferenceProvider
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
+      console.log references
       @references = references
     catch error
       console.error error
@@ -174,16 +178,9 @@ class ReferenceProvider
 
   prettifyAuthors: (authors) ->
     name = @prettifyName authors[0]
-
     if authors.length > 1 then "#{name} et al." else "#{name}"
 
-  prettifyName: (person, inverted = no, separator = ' ') ->
-    if inverted
-      @prettifyName {
-        personalName: person.familyName,
-        familyName: person.personalName
-      }, no, ', '
-    else
-      (if person.personalName? then person.personalName else '') + \
-      (if person.personalName? and person.familyName? then separator else '') + \
+  prettifyName: (person, separator = ' ') ->
       (if person.familyName? then person.familyName else '')
+      #(if person.personalName? then person.personalName else '') + \
+      #(if person.personalName? and person.familyName? then separator else '') + \
