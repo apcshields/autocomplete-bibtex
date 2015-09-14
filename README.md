@@ -1,8 +1,21 @@
 # autocomplete-bibtex package
 
-Adds BibTeX citation key autocompletion to
+Adds citation key autocompletion to
 [autocomplete+](https://github.com/saschagehlich/autocomplete-plus) for
 [Atom](http://atom.io/).
+
+## Screenshot
+
+![img/scrot.png](screenshot)
+
+## Features
+
+- Uses `autocomplete-plus` API v.2
+- Sorts matches by score *then* by first author name
+- Gives contextual information (container, volume, URL) in the completion pane
+- Works on bibtex and citeproc format
+- Articles, books, chapters, ..., have different colors
+- Custom icon!
 
 ## Installation
 
@@ -14,13 +27,14 @@ See [Usage, step 2] for the extra configuration step this change requires.
 
 ## Usage
 
-1. Add an array of the BibTeX files you want to search for citation keys to
-  `config.cson`.
+1. Add an array of the files you want to search for citation keys to
+  `config.cson`. Valid extensions are `bib`, `json`, and `yaml`.
 
   ```coffeescript
   'autocomplete-bibtex':
-    'bibtex': [
+    'references': [
       '/path/to/references.bib'
+      '/path/to/references.json'
     ]
   ```
 
@@ -30,22 +44,6 @@ See [Usage, step 2] for the extra configuration step this change requires.
 2. By default, the autocomplete-bibtex package is configured to provide
   suggestions in [scopes](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
   which Atom recognizes as Markdown.
-
-  However, autocomplete-plus will, by default, override this and block
-  completion in files which end in `.md`. If you plan to use autocomplete-bibtex
-  with Markdown files, you probably want to change the 'File Blacklist' setting
-  in the autocomplete-plus preferences or `config.cson`:
-
-  ```coffeescript
-  "autocomplete-plus":
-    fileBlacklist: [
-      ".*"
-    ]
-  ```
-
-  (The `fileBlacklist` variable uses [glob matching](https://en.wikipedia.org/wiki/Glob_(programming)
-  through [minimatch](https://www.npmjs.org/package/minimatch). This example
-  restricts autocompletion blacklisting to files that begin with a period.)
 
 3. In the document in which you want a citation, type '@' (the beginning of a
   Pandoc citation) and then begin to type the family name of any of the authors
