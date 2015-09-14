@@ -6,7 +6,7 @@ Adds citation key autocompletion to
 
 ## Screenshot
 
-![img/scrot.png](screenshot)
+![screenshot](img/scrot.png)
 
 ## Features
 
