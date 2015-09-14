@@ -159,6 +159,7 @@ class ReferenceProvider
 
   prettifyTitle: (title) ->
     return if not title
+    return title # NOTE test
     if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
       title = title.substring(0, colon)
 

@@ -3,12 +3,27 @@
 @import "ui-variables";
 @import "syntax-variables";
 
-.make-type-icon(book, @syntax-color-attribute);
-.make-type-icon(chapter, @syntax-color-keyword);
-
 .make-type-icon(@type, @color) {
- .icon.@{type} {
-   color: @color;
-   background: fadeout(@color, 80%)
- }
+   .@{type} {
+      .icon {
+         color: @color !important;
+         background: fadeout(@color, 80%);
+      }
+   }
+}
+
+autocomplete-suggestion-list {
+
+   .character-match {
+    font-weight: normal !important;
+  }
+
+  .right-label {
+    max-width: 250px !important; // NOTE this allows long author names
+  }
+
+  .make-type-icon(book, @syntax-color-attribute);
+  .make-type-icon(chapter, @syntax-color-keyword);
+  .make-type-icon(article-journal, @syntax-color-variable);
+
 }
