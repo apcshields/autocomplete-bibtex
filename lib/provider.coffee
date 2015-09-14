@@ -171,7 +171,7 @@ class ReferenceProvider
   prettifyTitle: (title) ->
     return if not title
     title = titlecaps(title)
-    return title # NOTE test
+    return title
 
   cleanAuthors: (authors) ->
     return [{ familyName: 'Unknown' }] if not authors?
@@ -188,5 +188,3 @@ class ReferenceProvider
 
   prettifyName: (person, separator = ' ') ->
       (if person.familyName? then person.familyName else '')
-      #(if person.personalName? then person.personalName else '') + \
-      #(if person.personalName? and person.familyName? then separator else '') + \
