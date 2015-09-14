@@ -170,21 +170,8 @@ class ReferenceProvider
 
   prettifyTitle: (title) ->
     return if not title
-    return title # NOTE test
-    if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
-      title = title.substring(0, colon)
-
-    # make title into titlecaps, trim length to 70 chars(ish) and add elipsis
     title = titlecaps(title)
-    cutoff = 40
-    if title.length > cutoff
-      title = title.slice(0, cutoff)
-      n = title.lastIndexOf(" ")
-      title = title.slice(0, n) + "…"
-    return title
-
-    # sugar function alternative
-    # title.titleize().truncateOnWord 30, 'middle'
+    return title # NOTE test
 
   cleanAuthors: (authors) ->
     return [{ familyName: 'Unknown' }] if not authors?
