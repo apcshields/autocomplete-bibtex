@@ -1,0 +1,14 @@
+.attr-syntax-color() { @syntax-color-attribute: #888; } .attr-syntax-color();
+
+@import "ui-variables";
+@import "syntax-variables";
+
+.make-type-icon(book, @syntax-color-attribute);
+.make-type-icon(chapter, @syntax-color-keyword);
+
+.make-type-icon(@type, @color) {
+ .icon.@{type} {
+   color: @color;
+   background: fadeout(@color, 80%)
+ }
+}

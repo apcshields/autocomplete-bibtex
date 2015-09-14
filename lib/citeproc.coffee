@@ -34,6 +34,20 @@ module.exports =
           na.personalName = editor.given
           editors = editors.concat na
         tags.editors = editors
+      # Entry type
+      tags.type = ref.type
+      # Container title
+      tags.in = ''
+      if ref['container-title']?
+        tags.in = ref['container-title']
+      if ref.volume?
+        tags.in += " vol. " + ref.volume
+      # URL ?
+      if ref.DOI?
+        tags.url = "http://dx.doi.org/" + ref.DOI
+      else if ref.URL
+        tags.url = ref.URL
+      # Assign tags
       cp_object.entryTags = tags
       cp_references = cp_references.concat cp_object
     return cp_references

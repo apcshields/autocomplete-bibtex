@@ -2,6 +2,12 @@ fs = require "fs"
 
 ReferenceProvider = require "./provider"
 
+'.source.gfm':
+  autocomplete:
+    symbols:
+      book:
+        selector: '.class.name'
+
 module.exports =
   config:
     references:

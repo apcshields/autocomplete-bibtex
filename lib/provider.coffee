@@ -49,9 +49,13 @@ class ReferenceProvider
                 displayText: word.label
                 leftLabel: word.key
                 rightLabel: word.by
-                type: "value"
+                className: word.type
                 iconHTML: '<i class="icon-mortar-board"></i>'
               }
+              if word.in?
+                suggestion.description = word.in
+              if word.url?
+                suggestion.descriptionMoreURL = word.url
               suggestions = suggestions.concat suggestion
             resolve(suggestions)
 
@@ -97,12 +101,18 @@ class ReferenceProvider
           @prettifyAuthors citation.entryTags.authors
 
         for author in citation.entryTags.authors
-          possibleWords.push {
+          new_word = {
             author: @prettifyName(author),
             key: citation.citationKey,
             label: "#{citation.entryTags.prettyTitle}"
             by: "#{citation.entryTags.prettyAuthors}"
+            type: "#{citation.entryTags.type}"
           }
+          if citation.entryTags.url?
+            new_word.url = citation.entryTags.url
+          if citation.entryTags.in?
+            new_word.in = citation.entryTags.in
+          possibleWords.push new_word
 
     @possibleWords = possibleWords
 
@@ -154,11 +164,11 @@ class ReferenceProvider
 
     # make title into titlecaps, trim length to 70 chars(ish) and add elipsis
     title = titlecaps(title)
-    cutoff = 45
+    cutoff = 40
     if title.length > cutoff
       title = title.slice(0, cutoff)
       n = title.lastIndexOf(" ")
-      title = title.slice(0, n) + "..."
+      title = title.slice(0, n) + "…"
     return title
 
     # sugar function alternative
