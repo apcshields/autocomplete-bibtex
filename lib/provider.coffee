@@ -48,8 +48,8 @@ class ReferenceProvider
                 text: word.key
                 displayText: word.label
                 leftLabel: word.key
-                type: "constant"
-                iconHTML: '<i class="icon-move-right"></i>'
+                type: "value"
+                iconHTML: '<i class="icon-mortar-board"></i>'
               }
               suggestions = suggestions.concat suggestion
             resolve(suggestions)
