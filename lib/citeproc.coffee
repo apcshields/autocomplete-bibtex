@@ -17,8 +17,12 @@ module.exports =
         authors = []
         for author in ref.author
           na = {}
-          na.familyName = author.family
-          na.personalName = author.given
+          if author.literal?
+            na.familyName = author.literal
+            na.personalName = ''
+          else
+            na.familyName = author.family
+            na.personalName = author.given
           authors = authors.concat na
         tags.authors = authors
       # Editors
