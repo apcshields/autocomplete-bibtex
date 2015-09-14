@@ -37,13 +37,24 @@ class ReferenceProvider
       inclusionPriority: 1
       excludeLowerPriority: true
 
+      compare: (a,b) ->
+        if a.score < b.score
+          return -1
+        if a.score > b.score
+          return 1
+        return 0
+
       getSuggestions: ({editor, bufferPosition}) ->
         prefix = @getPrefix(editor, bufferPosition)
         new Promise (resolve) ->
           if prefix[0] == "@"
             p = prefix.normalize().replace(/^@/, '')
             suggestions = []
-            for word in fuzzaldrin.filter allwords, p, { key: 'author' }
+            hits = fuzzaldrin.filter allwords, p, { key: 'author' }
+            for h in hits
+              h.score = fuzzaldrin.score(p, h.author)
+            hits.sort @compare
+            for word in hits
               suggestion = {
                 text: word.key
                 displayText: word.label
