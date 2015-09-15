@@ -10,6 +10,7 @@ module.exports =
 class ReferenceProvider
 
   atom.deserializers.add(this)
+
   @deserialize: ({data}) -> new ReferenceProvider(data)
 
   constructor: (state) ->
@@ -33,7 +34,7 @@ class ReferenceProvider
 
     @provider =
       selector: atom.config.get "autocomplete-bibtex.scope"
-      disableForSelector: ".comment"
+      disableForSelector: atom.config.get "autocomplete-bibtex.scope"
       inclusionPriority: 1
       excludeLowerPriority: true
 
@@ -54,10 +55,12 @@ class ReferenceProvider
             for h in hits
               h.score = fuzzaldrin.score(p, h.author)
             hits.sort @compare
+            resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
             for word in hits
               suggestion = {
-                text: word.key
+                text: resultTemplate.replace("[key]", word.key)
                 displayText: word.label
+                replacementPrefix: prefix
                 leftLabel: word.key
                 rightLabel: word.by
                 className: word.type
@@ -82,7 +85,6 @@ class ReferenceProvider
         # Match the regex to the line, and return the match
         line.match(regex)?[0] or ''
 
-    # return provider
 
   serialize: -> {
     deserializer: 'ReferenceProvider'

@@ -12,6 +12,9 @@ module.exports =
     scope:
       type: 'string'
       default: '.source.gfm'
+    ignoreScope:
+      type: 'string'
+      default: '.comment'
     resultTemplate:
       type: 'string'
       default: '@[key]'
