@@ -34,7 +34,7 @@ class ReferenceProvider
 
     @provider =
       selector: atom.config.get "autocomplete-bibtex.scope"
-      disableForSelector: atom.config.get "autocomplete-bibtex.scope"
+      disableForSelector: atom.config.get "autocomplete-bibtex.ignoreScope"
       inclusionPriority: 1
       excludeLowerPriority: true
 
