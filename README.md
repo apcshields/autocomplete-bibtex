@@ -27,6 +27,10 @@ See [Usage, step 2] for the extra configuration step this change requires.
   (For instructions about editing `config.cson`, check out the Atom
   [documentation](https://atom.io/docs/latest/customizing-atom#advanced-configuration).)
 
+  If you prefer a graphical user interface, you can add edit the settings directly in `Packages - Settings View - Manage Packages - autocomplete-bibtex` as shown in the illustrated screenshot below:
+
+  ![](bibtex-settings.png)  
+
 2. By default, the autocomplete-bibtex package is configured to provide
   suggestions in [scopes](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
   which Atom recognizes as Markdown.
