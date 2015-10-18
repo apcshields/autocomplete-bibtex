@@ -4,6 +4,8 @@ fuzzaldrin = require "fuzzaldrin"
 XRegExp = require('xregexp').XRegExp
 titlecaps = require "./titlecaps"
 
+String::startsWith ?= (s) -> @slice(0, s.length) == s
+String::endsWith   ?= (s) -> s == '' or @slice(-s.length) == s
 
 module.exports =
 class BibtexProvider
@@ -97,6 +99,10 @@ class BibtexProvider
     possibleWords = []
     for citation in @bibtex
       if citation.entryTags and citation.entryTags.title and (citation.entryTags.author or citation.entryTags.editor)
+        title = citation.entryTags.title
+        title = title.replace(/^\{/, "")
+        title = title.replace(/\}$/, "")
+        citation.entryTags.title = title
         citation.entryTags.prettyTitle =
           @prettifyTitle citation.entryTags.title
 
@@ -163,6 +169,10 @@ class BibtexProvider
 
   prettifyTitle: (title) ->
     return if not title
+    # if title.startsWith('{')
+    #   title = t
+    title = title.replace(/^\{/, "")
+    title = title.replace(/\}$/, "")
     if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
       title = title.substring(0, colon)
 

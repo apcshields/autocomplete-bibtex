@@ -53,11 +53,15 @@ module.exports =
     @commands.add atom.commands.add 'atom-workspace',
         # 'bibliography:search': => @bibView.toggle()
         'bibliography:search': => @showSearch()
+        'bibliography:reload': => @forceReload()
 
   showSearch: ->
     @bibView = new BibView(@bibtexProvider.bibtex)
     @bibView.show()
-
+  forceReload: ->
+    @bibtexProvider = new BibtexProvider()
+    @provider = @bibtexProvider.provider
+    
   deactivate: ->
     @provider.registration.dispose()
     @commands.dispose()
