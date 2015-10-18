@@ -96,12 +96,20 @@ class BibtexProvider
   buildWordList: () =>
     possibleWords = []
     for citation in @bibtex
-      if citation.entryTags and citation.entryTags.title and citation.entryTags.author
+      if citation.entryTags and citation.entryTags.title and (citation.entryTags.author or citation.entryTags.editor)
         citation.entryTags.prettyTitle =
           @prettifyTitle citation.entryTags.title
 
-        citation.entryTags.authors =
-          @cleanAuthors citation.entryTags.author?.split ' and '
+        citation.entryTags.authors = []
+
+        if citation.entryTags.author?
+          citation.entryTags.authors =
+            citation.entryTags.authors.concat @cleanAuthors citation.entryTags.author.split ' and '
+
+        if citation.entryTags.editor?
+          citation.entryTags.authors =
+            citation.entryTags.authors.concat @cleanAuthors citation.entryTags.editor.split ' and '
+
         citation.entryTags.prettyAuthors =
           @prettifyAuthors citation.entryTags.authors
 
