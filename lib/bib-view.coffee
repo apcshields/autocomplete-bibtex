@@ -28,17 +28,25 @@ class BibView extends SelectListView
   viewForItem: (item)->
     # console.log item
     if item.entryTags and item.entryTags.title and item.entryTags.author
-      return "<li><span>#{item.entryTags.author}</span>&nbsp;<span>#{item.entryTags.title}</span></li>"
+      return "<li class='bib-view item'>
+      <span>#{item.entryTags.author}</span>
+      <span class='citeKey'>#{item.citationKey}</span>
+      <br>
+      <span>#{item.entryTags.title}</span></li>"
     else
       return ""
 
   confirmed: (item)->
     #insert ref at cursor
-    console.log item
     editor = atom.workspace.getActiveTextEditor()
     citekey = @resultTemplate.replace('[key]', item.citationKey)
     editor.insertText(citekey)
     @panel.hide()
+
+  cancel: ->
+    super
+    if @panel.isVisible()
+      @panel.hide()
 
   getFilterKey: ->
     'label'
