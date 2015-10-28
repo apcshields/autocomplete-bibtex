@@ -11,7 +11,10 @@ module.exports =
         type: 'string'
     scope:
       type: 'string'
-      default: '.source.gfm'
+      default: '.source.gfm,.text.md'
+    ignoreScope:
+      type: 'string'
+      default: '.comment'
     resultTemplate:
       type: 'string'
       default: '@[key]'
@@ -53,4 +56,4 @@ module.exports =
 
 
   provide: ->
-    return { providers: [@provider] }
+    @provider
