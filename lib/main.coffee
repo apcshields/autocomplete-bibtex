@@ -1,8 +1,8 @@
 fs = require "fs"
 {CompositeDisposable} = require 'atom'
 
-BibtexProvider = require "./provider"
-BibView = require './bib-view'
+ReferenceProvider = require "./provider"
+RefView = require './ref-view'
 
 module.exports =
   config:
@@ -37,18 +37,18 @@ module.exports =
     # Need to distinguish between the Autocomplete provider and the
     # containing class (which holds the serialize fn)
     if state and reload is false
-      @bibtexProvider = atom.deserializers.deserialize(state.provider)
+      @referenceProvider = atom.deserializers.deserialize(state.provider)
       #deserializer produces "undefined" if it fails, so double check
-      if not @bibtexProvider
-        @bibtexProvider = new BibtexProvider()
+      if not @referenceProvider
+        @referenceProvider = new ReferenceProvider()
     else
-      @bibtexProvider = new BibtexProvider()
+      @referenceProvider = new ReferenceProvider()
 
-    @provider = @bibtexProvider.provider
+    @provider = @referenceProvider.provider
 
-    # @bibItems = @bibtexProvider.possibleWords
+    # @bibItems = @referenceProvider.possibleWords
 
-    @bibView = new BibView(@bibtexProvider.bibtex)
+    @refView = new RefView(@referenceProvider.bibtex)
 
     @commands = new CompositeDisposable()
 
@@ -59,19 +59,23 @@ module.exports =
         'bibliography:reload': => @forceReload()
 
   showSearch: ->
-    @bibView = new BibView(@bibtexProvider.bibtex)
-    @bibView.show()
+    # @refView = new RefView(@referenceProvider.bibtex)
+    @refView.populateList()
+    @refView.show()
+
   forceReload: ->
-    @bibtexProvider = new BibtexProvider()
-    @provider = @bibtexProvider.provider
-    
+    @referenceProvider = new ReferenceProvider()
+    @provider = @referenceProvider.provider
+    @refView = new RefView(@referenceProvider.bibtex)
+
+
   deactivate: ->
     @provider.registration.dispose()
     @commands.dispose()
 
   serialize: ->
     state = {
-      provider: @bibtexProvider.serialize()
+      provider: @referenceProvider.serialize()
       saveTime: new Date().getTime()
     }
     return state

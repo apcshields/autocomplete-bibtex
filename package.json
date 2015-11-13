@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "fuzzaldrin": "~1.0.0",
-    "sugar": "1.4.x",
     "xregexp": "^2.0.0",
     "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.2.0",
-    "atom-space-pen-views": "^2.0.3"
+    "atom-space-pen-views": "^2.1.0",
+    "yaml-js": "*"
   },
   "repository": {
     "type": "git",
