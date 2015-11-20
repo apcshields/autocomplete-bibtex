@@ -87,7 +87,7 @@ class ReferenceProvider
 
 
   serialize: -> {
-    deserializer: 'BibtexProvider'
+    deserializer: 'ReferenceProvider'
     data: { bibtex: @bibtex, possibleWords: @possibleWords }
   }
 

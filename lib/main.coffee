@@ -1,6 +1,6 @@
 fs = require "fs"
 
-BibtexProvider = require "./provider"
+ReferenceProvider = require "./provider"
 
 module.exports =
   config:
@@ -38,9 +38,9 @@ module.exports =
       @bibtexProvider = atom.deserializers.deserialize(state.provider)
       #deserializer produces "undefined" if it fails, so double check
       if not @bibtexProvider
-        @bibtexProvider = new BibtexProvider()
+        @bibtexProvider = new ReferenceProvider()
     else
-      @bibtexProvider = new BibtexProvider()
+      @bibtexProvider = new ReferenceProvider()
 
     @provider = @bibtexProvider.provider
 
