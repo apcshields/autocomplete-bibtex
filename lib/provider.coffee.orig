@@ -3,8 +3,14 @@ bibtexParse = require "zotero-bibtex-parse"
 fuzzaldrin = require "fuzzaldrin"
 XRegExp = require('xregexp').XRegExp
 titlecaps = require "./titlecaps"
+<<<<<<< HEAD
 citeproc = require "./citeproc"
 yaml = require "yaml-js"
+=======
+
+String::startsWith ?= (s) -> @slice(0, s.length) == s
+String::endsWith   ?= (s) -> s == '' or @slice(-s.length) == s
+>>>>>>> origin/master
 
 module.exports =
 class ReferenceProvider
@@ -185,10 +191,21 @@ class ReferenceProvider
 
   prettifyTitle: (title) ->
     return if not title
+<<<<<<< HEAD
     # Mendeley wraps title with double {{}}, while the parser
     # only removes one set of those. remove the second set here
     title = title.replace(/^\{/, "")
     title = title.replace(/\}$/, "")
+=======
+    # if title.startsWith('{')
+    #   title = t
+    title = title.replace(/^\{/, "")
+    title = title.replace(/\}$/, "")
+    if (colon = title.indexOf(':')) isnt -1 and title.split(" ").length > 5
+      title = title.substring(0, colon)
+
+    # make title into titlecaps, trim length to 30 chars(ish) and add elipsis
+>>>>>>> origin/master
     title = titlecaps(title)
     return title
 

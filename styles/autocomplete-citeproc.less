@@ -27,3 +27,36 @@ autocomplete-suggestion-list {
   .make-type-icon(article-journal, @syntax-color-variable);
 
 }
+
+
+select-list.reference-search {
+  ol.list-group {
+      li {
+
+        .primary-line,
+        .secondary-line {
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .icon-space {
+        }
+        div.entry {
+          .citekey{
+            color: @text-color-subtle;
+            font-style: italic;
+          }
+        }
+
+      .entry-container {
+        // display: flex;
+        // flex-direction: column;
+      }
+
+
+    }
+  }
+
+
+}

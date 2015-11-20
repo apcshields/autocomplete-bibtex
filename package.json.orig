@@ -12,8 +12,12 @@
     "fuzzaldrin": "~1.0.0",
     "xregexp": "^2.0.0",
     "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.2.0",
+<<<<<<< HEAD
     "atom-space-pen-views": "^2.1.0",
     "yaml-js": "*"
+=======
+    "atom-space-pen-views": "^2.0.3"
+>>>>>>> origin/master
   },
   "repository": {
     "type": "git",

@@ -1,8 +1,13 @@
 fs = require "fs"
 {CompositeDisposable} = require 'atom'
 
+<<<<<<< HEAD
 ReferenceProvider = require "./provider"
 RefView = require './ref-view'
+=======
+BibtexProvider = require "./provider"
+BibView = require './bib-view'
+>>>>>>> origin/master
 
 module.exports =
   config:
