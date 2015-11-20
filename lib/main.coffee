@@ -87,7 +87,7 @@ module.exports =
   forceReload: ->
     @bibtexProvider = new BibtexProvider()
     @provider = @bibtexProvider.provider
-    
+
   deactivate: ->
     @provider.registration.dispose()
     @commands.dispose()

@@ -88,7 +88,7 @@ class ReferenceProvider
 
 
   serialize: -> {
-    deserializer: 'BibtexProvider'
+    deserializer: 'ReferenceProvider'
     data: { bibtex: @bibtex, possibleWords: @possibleWords }
   }
 
@@ -154,8 +154,7 @@ class ReferenceProvider
         # What type of file is this?
         ftype = file.split('.')
         ftype = ftype[ftype.length - 1]
-
-      for file in referenceFiles
+        
         if fs.statSync(file).isFile()
           if ftype is "bib"
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
