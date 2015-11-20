@@ -129,7 +129,7 @@ class ReferenceProvider
     @possibleWords = possibleWords
 
   buildWordListFromFiles: (bibtexFiles) =>
-    @readBibtexFiles(bibtexFiles)
+    @readReferenceFiles(bibtexFiles)
     @buildWordList()
 
   readReferenceFiles: (referenceFiles) =>
@@ -146,7 +146,6 @@ class ReferenceProvider
         ftype = file.split('.')
         ftype = ftype[ftype.length - 1]
 
-      for file in bibtexFiles
         if fs.statSync(file).isFile()
           parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
 
@@ -167,7 +166,7 @@ class ReferenceProvider
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
 
-      @bibtex = bibtex
+      @bibtex = references
     catch error
       console.error error
 
