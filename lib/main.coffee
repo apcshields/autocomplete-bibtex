@@ -54,7 +54,6 @@ module.exports =
 
     # TODO figure out how to show/hide commands for grammars
     @commands.add atom.commands.add 'atom-workspace',
-        # 'bibliography:search': => @bibView.toggle()
         'bibliography:search': => @showSearch()
         'bibliography:reload': => @forceReload()
 
