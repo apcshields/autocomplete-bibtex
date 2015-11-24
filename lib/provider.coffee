@@ -36,8 +36,9 @@ class ReferenceProvider
     @provider =
       selector: atom.config.get "autocomplete-bibtex.scope"
       disableForSelector: atom.config.get "autocomplete-bibtex.ignoreScope"
-      inclusionPriority: 1
-      excludeLowerPriority: true
+      # Hack to supress default provider in MD files
+      # inclusionPriority: 2
+      # excludeLowerPriority: true
 
       compare: (a,b) ->
         if a.score < b.score
@@ -202,6 +203,9 @@ class ReferenceProvider
 
   prettifyAuthors: (authors) ->
     name = @prettifyName authors[0]
+    # remove leading and trailing {}
+    name = name.replace(/^\{/, "")
+    name = name.replace(/\}$/, "")
     if authors.length > 1 then "#{name} et al." else "#{name}"
 
   prettifyName: (person, separator = ' ') ->

@@ -54,7 +54,6 @@ module.exports =
 
     # TODO figure out how to show/hide commands for grammars
     @commands.add atom.commands.add 'atom-workspace',
-        # 'bibliography:search': => @bibView.toggle()
         'bibliography:search': => @showSearch()
         'bibliography:reload': => @forceReload()
 
@@ -69,24 +68,13 @@ module.exports =
     @refView = new RefView(@referenceProvider.bibtex)
 
 
-    # @bibItems = @bibtexProvider.possibleWords
-
-    @bibView = new BibView(@bibtexProvider.bibtex)
-
+    # @bibItems = @referenceProvider.possibleWords
     @commands = new CompositeDisposable()
 
     # TODO figure out how to show/hide commands for grammars
     @commands.add atom.commands.add 'atom-workspace',
-        # 'bibliography:search': => @bibView.toggle()
         'bibliography:search': => @showSearch()
         'bibliography:reload': => @forceReload()
-
-  showSearch: ->
-    @bibView = new BibView(@bibtexProvider.bibtex)
-    @bibView.show()
-  forceReload: ->
-    @bibtexProvider = new BibtexProvider()
-    @provider = @bibtexProvider.provider
 
   deactivate: ->
     @provider.registration.dispose()
