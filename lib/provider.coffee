@@ -96,44 +96,39 @@ class ReferenceProvider
   buildWordList: () =>
     possibleWords = []
     for citation in @bibtex
-      if citation.entryTags and citation.entryTags.title and (citation.entryTags.author or citation.entryTags.editor)
-        title = citation.entryTags.title
-        title = title.replace(/^\{/, "")
-        title = title.replace(/\}$/, "")
-        citation.entryTags.title = title
+      if citation.entryTags and citation.entryTags.title and (citation.entryTags.authors or citation.entryTags.editors)
+        citation.entryTags.title = citation.entryTags.title.replace(/(^\{|\}$)/g, "")
         citation.entryTags.prettyTitle =
           @prettifyTitle citation.entryTags.title
 
-        citation.entryTags.authors = []
         citation.fuzzyLabel = citation.entryTags.title
 
-        if citation.entryTags.author?
-          citation.entryTags.author += citation.fuzzyLabel
-          citation.entryTags.authors =
-            citation.entryTags.authors.concat @cleanAuthors citation.entryTags.author.split ' and '
+        if citation.entryTags.authors?
+          for author in citation.entryTags.authors
+            citation.fuzzyLabel += " #{author.personalName} #{author.familyName}"
 
-        if not citation.entryTags.editors
-          if citation.entryTags.editor?
-            citation.entryTags.authors =
-              citation.entryTags.authors.concat @cleanAuthors citation.entryTags.editor.split ' and '
+        if citation.entryTags.editors?
+          for editor in citation.entryTags.editors
+            citation.fuzzyLabel += " #{editor.personalName} #{editor.familyName}"
 
         citation.entryTags.prettyAuthors =
           @prettifyAuthors citation.entryTags.authors
-
-
 
         for author in citation.entryTags.authors
           new_word = {
             author: @prettifyName(author),
             key: citation.citationKey,
-            label: "#{citation.entryTags.prettyTitle}"
-            by: "#{citation.entryTags.prettyAuthors}"
-            type: "#{citation.entryTags.type}"
+            label: citation.entryTags.prettyTitle
+            by: citation.entryTags.prettyAuthors
+            type: citation.entryTags.type
           }
+
           if citation.entryTags.url?
             new_word.url = citation.entryTags.url
+
           if citation.entryTags.in?
             new_word.in = citation.entryTags.in
+
           possibleWords.push new_word
 
     @possibleWords = possibleWords
@@ -155,13 +150,9 @@ class ReferenceProvider
         # What type of file is this?
         ftype = file.split('.')
         ftype = ftype[ftype.length - 1]
-        
-        if fs.statSync(file).isFile()
-          if ftype is "bib"
-            parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
-            references = references.concat parser.parse()
 
-          else if ftype is "json"
+        if fs.statSync(file).isFile()
+          if ftype is "json"
             cpobject = JSON.parse fs.readFileSync(file, 'utf-8')
             citeproc_refs = citeproc.parse cpobject
             references = references.concat citeproc_refs
@@ -172,9 +163,9 @@ class ReferenceProvider
             references = references.concat citeproc_refs
 
           else
-            # Default to trying to parse as a Bib file
+            # Default to trying to parse as a BibTeX file.
             parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
-            references = references.concat parser.parse()
+            references = references.concat @parseBibtexAuthors parser.parse()
 
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
@@ -192,6 +183,16 @@ class ReferenceProvider
     title = titlecaps(title)
     return title
 
+  parseBibtexAuthors: (citations) ->
+    for citation in citations
+      if citation.entryTags.author?
+        citation.entryTags.authors = @cleanAuthors citation.entryTags.author.split ' and '
+
+      if citation.entryTags.editor?
+        citation.entryTags.editors = @cleanAuthors citation.entryTags.editor.split ' and '
+
+    return citations
+
   cleanAuthors: (authors) ->
     return [{ familyName: 'Unknown' }] if not authors?
 
@@ -202,6 +203,8 @@ class ReferenceProvider
       { personalName: personalName, familyName: familyName }
 
   prettifyAuthors: (authors) ->
+    if not authors.length then return ''
+
     name = @prettifyName authors[0]
     # remove leading and trailing {}
     name = name.replace(/^\{/, "")
