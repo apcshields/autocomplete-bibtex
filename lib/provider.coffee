@@ -20,7 +20,6 @@ class ReferenceProvider
     else
       @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
-
     if @bibtex.length == 0
       @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
@@ -31,7 +30,7 @@ class ReferenceProvider
     atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
       @resultTemplate = resultTemplate
 
-    allwords = @possibleWords
+    possibleWords = @possibleWords
 
     @provider =
       selector: atom.config.get "autocomplete-bibtex.scope"
@@ -40,7 +39,7 @@ class ReferenceProvider
       # inclusionPriority: 2
       # excludeLowerPriority: true
 
-      compare: (a,b) ->
+      compare: (a, b) ->
         if a.score < b.score
           return -1
         if a.score > b.score
@@ -49,17 +48,22 @@ class ReferenceProvider
 
       getSuggestions: ({editor, bufferPosition}) ->
         prefix = @getPrefix(editor, bufferPosition)
+
         new Promise (resolve) ->
           if prefix[0] == "@"
-            p = prefix.normalize().replace(/^@/, '')
+            normalizedPrefix = prefix.normalize().replace(/^@/, '')
             suggestions = []
-            hits = fuzzaldrin.filter allwords, p, { key: 'author' }
-            for h in hits
-              h.score = fuzzaldrin.score(p, h.author)
+            hits = fuzzaldrin.filter possibleWords, normalizedPrefix, { key: 'author' }
+
+            for hit in hits
+              hit.score = fuzzaldrin.score normalizedPrefix, hit.author
+
             hits.sort @compare
+
             resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
+
             for word in hits
-              suggestion = {
+              suggestions.push {
                 text: resultTemplate.replace("[key]", word.key)
                 displayText: word.label
                 replacementPrefix: prefix
@@ -67,12 +71,10 @@ class ReferenceProvider
                 rightLabel: word.by
                 className: word.type
                 iconHTML: '<i class="icon-mortar-board"></i>'
+                description: word.in if word.in?
+                descriptionMoreURL: word.url if word.url?
               }
-              if word.in?
-                suggestion.description = word.in
-              if word.url?
-                suggestion.descriptionMoreURL = word.url
-              suggestions = suggestions.concat suggestion
+
             resolve(suggestions)
 
       getPrefix: (editor, bufferPosition) ->
@@ -87,7 +89,6 @@ class ReferenceProvider
         # Match the regex to the line, and return the match
         line.match(regex)?[0] or ''
 
-
   serialize: -> {
     deserializer: 'ReferenceProvider'
     data: { bibtex: @bibtex, possibleWords: @possibleWords }
@@ -95,6 +96,7 @@ class ReferenceProvider
 
   buildWordList: () =>
     possibleWords = []
+
     for citation in @bibtex
       if citation.entryTags and citation.entryTags.title and (citation.entryTags.authors or citation.entryTags.editors)
         citation.entryTags.title = citation.entryTags.title.replace(/(^\{|\}$)/g, "")
@@ -115,22 +117,15 @@ class ReferenceProvider
           @prettifyAuthors citation.entryTags.authors
 
         for author in citation.entryTags.authors
-          new_word = {
+          possibleWords.push {
             author: @prettifyName(author),
             key: citation.citationKey,
             label: citation.entryTags.prettyTitle
             by: citation.entryTags.prettyAuthors
             type: citation.entryTags.type
             in: citation.entryTags.in or citation.entryTags.journal or citation.entryTags.booktitle
+            url: citation.entryTags.url if citation.entryTags.url?
           }
-
-          if citation.entryTags.url?
-            new_word.url = citation.entryTags.url
-
-          if citation.entryTags.in?
-            new_word.in = citation.entryTags.in
-
-          possibleWords.push new_word
 
     @possibleWords = possibleWords
 
@@ -144,45 +139,40 @@ class ReferenceProvider
     # Make sure our list of files is an array, even if it's only one file
     if not Array.isArray(referenceFiles)
       referenceFiles = [referenceFiles]
+
     try
       references = []
-      for file in referenceFiles
 
+      for file in referenceFiles
         # What type of file is this?
-        ftype = file.split('.')
-        ftype = ftype[ftype.length - 1]
+        fileType = file.split('.').pop()
 
         if fs.statSync(file).isFile()
-          if ftype is "json"
-            cpobject = JSON.parse fs.readFileSync(file, 'utf-8')
-            citeproc_refs = citeproc.parse cpobject
-            references = references.concat citeproc_refs
-
-          else if ftype is "yaml"
-            cpobject = yaml.load fs.readFileSync(file, 'utf-8')
-            citeproc_refs = citeproc.parse cpobject
-            references = references.concat citeproc_refs
-
+          if fileType is "json"
+            citeprocObject = JSON.parse fs.readFileSync(file, 'utf-8')
+            citeprocReferences = citeproc.parse citeprocObject
+            references = references.concat citeprocReferences
+          else if fileType is "yaml"
+            citeprocObject = yaml.load fs.readFileSync(file, 'utf-8')
+            citeprocReferences = citeproc.parse citeprocObject
+            references = references.concat citeprocReferences
           else
             # Default to trying to parse as a BibTeX file.
-            parser = new bibtexParse(fs.readFileSync(file, 'utf-8'))
-            references = references.concat @parseBibtexAuthors parser.parse()
+            bibtexParser = new bibtexParse fs.readFileSync(file, 'utf-8')
+            references = references.concat @parseBibtexAuthors bibtexParser.parse()
 
+          @bibtex = references
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
-
-      @bibtex = references
     catch error
       console.error error
 
   prettifyTitle: (title) ->
     return if not title
+
     # Mendeley wraps title with double {{}}, while the parser
     # only removes one set of those. remove the second set here
-    title = title.replace(/^\{/, "")
-    title = title.replace(/\}$/, "")
-    title = titlecaps(title)
-    return title
+    titlecaps(title.replace(/(^\{|\}$)/g, ""))
 
   parseBibtexAuthors: (citations) ->
     for citation in citations
@@ -204,12 +194,13 @@ class ReferenceProvider
       { personalName: personalName, familyName: familyName }
 
   prettifyAuthors: (authors) ->
-    if not authors.length then return ''
+    return '' if not authors.length
 
     name = @prettifyName authors[0]
+
     # remove leading and trailing {}
-    name = name.replace(/^\{/, "")
-    name = name.replace(/\}$/, "")
+    name = name.replace /(^\{|\}$)/g, ""
+
     if authors.length > 1 then "#{name} et al." else "#{name}"
 
   prettifyName: (person, separator = ' ') ->
