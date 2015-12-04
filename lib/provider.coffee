@@ -121,6 +121,7 @@ class ReferenceProvider
             label: citation.entryTags.prettyTitle
             by: citation.entryTags.prettyAuthors
             type: citation.entryTags.type
+            in: citation.entryTags.in or citation.entryTags.journal or citation.entryTags.booktitle
           }
 
           if citation.entryTags.url?
