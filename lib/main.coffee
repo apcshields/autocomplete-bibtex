@@ -20,6 +20,8 @@ module.exports =
     reload = false
     if state
       bibtexFiles = atom.config.get "autocomplete-bibtex.bibtex"
+      # we want to remember the actual stateTime
+      @stateTime = state.saveTime
       if not Array.isArray(bibtexFiles)
         bibtexFiles = [bibtexFiles]
       # reload everything if any files changed
@@ -28,6 +30,7 @@ module.exports =
         if stats.isFile()
           if state.saveTime < stats.mtime.getTime()
             reload = true
+            @stateTime = new Date().getTime()
 
     # Need to distinguish between the Autocomplete provider and the
     # containing class (which holds the serialize fn)
@@ -47,7 +50,7 @@ module.exports =
   serialize: ->
     state = {
       provider: @bibtexProvider.serialize()
-      saveTime: new Date().getTime()
+      saveTime: @stateTime ? new Date().getTime()
     }
     return state
 
