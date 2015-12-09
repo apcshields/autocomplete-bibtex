@@ -69,7 +69,9 @@ class BibtexProvider
 
         return if not prefix.length or prefix[0] is not '@'
 
-        normalizedPrefix = prefix.normalize().replace(/^@/, '')
+        normalizedPrefix = prefix.normalize().replace(/@/, '')
+        # remove line breaks
+        normalizedPrefix = normalizedPrefix.replace(/(\r\n|\n|\r)/gm,"");
 
         words = fuzzaldrin.filter @possibleWords, normalizedPrefix, { key: 'author' }
 
