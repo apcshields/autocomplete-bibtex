@@ -21,9 +21,6 @@ Adds citation key autocompletion to
 
 You can install autocomplete-bibtex using the Preferences pane.
 
-N.B. autocomplete-bibtex has migrated back to using [autocomplete-plus](https://atom.io/packages/autocomplete-plus),
-so as of version 0.5.0, you once again need to have autocomplete-plus installed.
-See [Usage, step 2] for the extra configuration step this change requires.
 
 ## Usage
 
