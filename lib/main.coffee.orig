@@ -85,8 +85,13 @@ module.exports =
 
   serialize: ->
     state = {
+<<<<<<< HEAD
+      provider: @bibtexProvider.serialize()
+      saveTime: @stateTime ? new Date().getTime()
+=======
       provider: @referenceProvider.serialize()
       saveTime: new Date().getTime()
+>>>>>>> apcshields/master
     }
     return state
 

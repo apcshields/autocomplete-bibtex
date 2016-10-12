@@ -1,0 +1,62 @@
+.attr-syntax-color() { @syntax-color-attribute: #888; } .attr-syntax-color();
+
+@import "ui-variables";
+@import "syntax-variables";
+
+.make-type-icon(@type, @color) {
+   .@{type} {
+      .icon {
+         color: @color !important;
+         background: fadeout(@color, 80%);
+      }
+   }
+}
+
+autocomplete-suggestion-list {
+
+   .character-match {
+    font-weight: normal !important;
+  }
+
+  .right-label {
+    max-width: 250px !important; // NOTE this allows long author names
+  }
+
+  .make-type-icon(book, @syntax-color-attribute);
+  .make-type-icon(chapter, @syntax-color-keyword);
+  .make-type-icon(article-journal, @syntax-color-variable);
+
+}
+
+
+select-list.reference-search {
+  ol.list-group {
+      li {
+
+        .primary-line,
+        .secondary-line {
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .icon-space {
+        }
+        div.entry {
+          .citekey{
+            color: @text-color-subtle;
+            font-style: italic;
+          }
+        }
+
+      .entry-container {
+        // display: flex;
+        // flex-direction: column;
+      }
+
+
+    }
+  }
+
+
+}
