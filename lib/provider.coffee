@@ -14,7 +14,7 @@ class ReferenceProvider
   @deserialize: ({data}) -> new ReferenceProvider(data)
 
   constructor: (state) ->
-    if state and Object.keys(state).length != 0
+    if state and Object.keys(state).length != 0 and state.bibtex?
       @bibtex = state.bibtex
       @possibleWords = state.possibleWords
     else
@@ -27,8 +27,9 @@ class ReferenceProvider
       @buildWordListFromFiles(bibtexFiles)
 
     resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
-    atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
+    atom.config.observe("autocomplete-bibtex.resultTemplate", (resultTemplate) =>
       @resultTemplate = resultTemplate
+    )
 
     possibleWords = @possibleWords
 
@@ -94,10 +95,10 @@ class ReferenceProvider
     data: { bibtex: @bibtex, possibleWords: @possibleWords }
   }
 
-  buildWordList: () =>
+  buildWordList: (bibtex) =>
     possibleWords = []
 
-    for citation in @bibtex
+    for citation in bibtex
       if citation.entryTags and citation.entryTags.title and (citation.entryTags.authors or citation.entryTags.editors)
         citation.entryTags.title = citation.entryTags.title.replace(/(^\{|\}$)/g, "")
         citation.entryTags.prettyTitle =
@@ -113,25 +114,36 @@ class ReferenceProvider
           for editor in citation.entryTags.editors
             citation.fuzzyLabel += " #{editor.personalName} #{editor.familyName}"
 
-        citation.entryTags.prettyAuthors =
-          @prettifyAuthors citation.entryTags.authors
+        if citation.entryTags.authors?
+          citation.entryTags.prettyAuthors =
+            @prettifyAuthors citation.entryTags.authors
 
-        for author in citation.entryTags.authors
+          for author in citation.entryTags.authors
+            possibleWords.push {
+              author: @prettifyName(author),
+              key: citation.citationKey,
+              label: citation.entryTags.prettyTitle
+              by: citation.entryTags.prettyAuthors
+              type: citation.entryTags.type
+              in: citation.entryTags.in or citation.entryTags.journal or citation.entryTags.booktitle
+              url: citation.entryTags.url if citation.entryTags.url?
+            }
+        else
           possibleWords.push {
-            author: @prettifyName(author),
+            author: '',
             key: citation.citationKey,
             label: citation.entryTags.prettyTitle
-            by: citation.entryTags.prettyAuthors
+            by: ''
             type: citation.entryTags.type
             in: citation.entryTags.in or citation.entryTags.journal or citation.entryTags.booktitle
             url: citation.entryTags.url if citation.entryTags.url?
           }
 
-    @possibleWords = possibleWords
+    return possibleWords
 
   buildWordListFromFiles: (referenceFiles) =>
-    @readReferenceFiles(referenceFiles)
-    @buildWordList()
+    @bibtex = @readReferenceFiles(referenceFiles)
+    @possibleWords = @buildWordList(@bibtex)
 
   readReferenceFiles: (referenceFiles) =>
     if referenceFiles.newValue?
@@ -158,12 +170,12 @@ class ReferenceProvider
             references = references.concat citeprocReferences
           else
             # Default to trying to parse as a BibTeX file.
-            bibtexParser = new bibtexParse fs.readFileSync(file, 'utf-8')
-            references = references.concat @parseBibtexAuthors bibtexParser.parse()
+            bibtexParser = new bibtexParse( fs.readFileSync(file, 'utf-8'))
+            references = references.concat( @parseBibtexAuthors( bibtexParser.parse()))
 
-          @bibtex = references
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
+      return references
     catch error
       console.error error
 
@@ -194,14 +206,20 @@ class ReferenceProvider
     title = title.slice(0, n) + "..."
 
   parseBibtexAuthors: (citations) ->
+    validCitations = []
     for citation in citations
-      if citation.entryTags.author?
-        citation.entryTags.authors = @cleanAuthors citation.entryTags.author.split ' and '
+      if citation.entryTags?
 
-      if citation.entryTags.editor?
-        citation.entryTags.editors = @cleanAuthors citation.entryTags.editor.split ' and '
 
-    return citations
+        if citation.entryTags.author?
+          citation.entryTags.authors = @cleanAuthors citation.entryTags.author.split ' and '
+
+        if citation.entryTags.editor?
+          citation.entryTags.editors = @cleanAuthors citation.entryTags.editor.split ' and '
+
+        validCitations.push(citation)
+
+    return validCitations
 
   cleanAuthors: (authors) ->
     return [{ familyName: 'Unknown' }] if not authors?
@@ -213,6 +231,7 @@ class ReferenceProvider
       { personalName: personalName, familyName: familyName }
 
   prettifyAuthors: (authors) ->
+    return '' if not authors?
     return '' if not authors.length
 
     name = @prettifyName authors[0]
