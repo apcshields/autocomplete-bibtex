@@ -1,8 +1,8 @@
-# autocomplete-bibtex package
+# Autocomplete-bibtex
 
 Adds citation key autocompletion to
-[autocomplete+](https://github.com/saschagehlich/autocomplete-plus) for
-[Atom](http://atom.io/).
+[autocomplete+](https://github.com/atom/autocomplete-plus) for
+[Atom](http://atom.io/). Supports bibtex and citeproc (yaml) file formats.
 
 ## Screenshot
 
@@ -92,6 +92,7 @@ You can install autocomplete-bibtex using the Preferences pane.
   ```markdown
   @krijnen_expand_2014
   ```
+4. You can also search through citations using the `autocomplete-bibtex:search` command
 
 ### Custom citation formatting.
 

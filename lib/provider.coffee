@@ -10,17 +10,17 @@ module.exports =
 class ReferenceProvider
 
   atom.deserializers.add(this)
-  @version: 2
+  @version: 3
   @deserialize: ({data}) -> new ReferenceProvider(data)
 
   constructor: (state) ->
     if state and Object.keys(state).length != 0 and state.bibtex?
-      @bibtex = state.bibtex
+      @references = state.references
       @possibleWords = state.possibleWords
     else
       @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
-    if @bibtex.length == 0
+    if @references.length == 0
       @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
 
     atom.config.onDidChange "autocomplete-bibtex.bibtex", (bibtexFiles) =>
@@ -92,13 +92,13 @@ class ReferenceProvider
 
   serialize: -> {
     deserializer: 'ReferenceProvider'
-    data: { bibtex: @bibtex, possibleWords: @possibleWords }
+    data: { references: @references, possibleWords: @possibleWords }
   }
 
-  buildWordList: (bibtex) =>
+  buildWordList: (references) =>
     possibleWords = []
 
-    for citation in bibtex
+    for citation in references
       if citation.entryTags and citation.entryTags.title and (citation.entryTags.authors or citation.entryTags.editors)
         citation.entryTags.title = citation.entryTags.title.replace(/(^\{|\}$)/g, "")
         citation.entryTags.prettyTitle =
@@ -142,8 +142,8 @@ class ReferenceProvider
     return possibleWords
 
   buildWordListFromFiles: (referenceFiles) =>
-    @bibtex = @readReferenceFiles(referenceFiles)
-    @possibleWords = @buildWordList(@bibtex)
+    @references = @readReferenceFiles(referenceFiles)
+    @possibleWords = @buildWordList(@references)
 
   readReferenceFiles: (referenceFiles) =>
     if referenceFiles.newValue?
