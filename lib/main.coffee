@@ -78,7 +78,6 @@ module.exports =
         'bibliography:reload': => @forceReload()
 
   deactivate: ->
-    @provider.registration.dispose()
     @commands.dispose()
 
   serialize: ->
