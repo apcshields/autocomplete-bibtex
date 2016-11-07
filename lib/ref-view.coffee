@@ -10,7 +10,6 @@ class RefView extends SelectListView
     @addClass('reference-search')
     @setItems(bibtex)
     @panel ?= atom.workspace.addModalPanel(item: this, visible: false)
-    # @panel.show()
     @resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
     atom.config.observe "autocomplete-bibtex.resultTemplate", (resultTemplate) =>
       @resultTemplate = resultTemplate
@@ -21,14 +20,12 @@ class RefView extends SelectListView
 
   toggle: ->
     if @panel.isVisible()
-      @panel.hide()
+      # @panel.hide()
     else
       @panel.show()
       @focusFilterEditor()
 
   viewForItem: (item)->
-    # console.log item
-
     if item.entryTags and item.entryTags.title and item.entryTags.author
 
       typeClass = "icon-mortar-board"
@@ -38,23 +35,21 @@ class RefView extends SelectListView
         typeClass = "icon-repo"
 
 
-      return """<li><table>
-      <tr>
-        <td>
-          <div class="icon-space">
+      return """<li class="autocomplete-bibtex-entry">
+      <div>
+        <div class="icon-space">
             <i class="icon #{typeClass}"></i>
-          </div>
-        </td>
-        <td>
-        <div>
-          <span>#{item.entryTags.prettyAuthors}</span>
-          <span class='citeKey'><em>[#{item.citationKey}]</em></span>
-          <br>
-          <p class="secondary-line">#{item.entryTags.prettyTitle}</p>
         </div>
-        </td>
-      </tr>
-      </table>
+        <div class="entry">
+          <div class="author-line">
+            <div>#{item.entryTags.prettyAuthors}</div>
+            <div class='citeKey'>[#{item.citationKey}]</div>
+          </div>
+          <div class="title-line">
+            #{item.entryTags.title}
+          </div>
+        </div>
+      </div>
 
       </li>"""
     else

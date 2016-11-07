@@ -4,3 +4,82 @@
     font-weight: bold;
   }
 }
+
+.attr-syntax-color() { @syntax-color-attribute: #888; } .attr-syntax-color();
+
+@import "ui-variables";
+@import "syntax-variables";
+
+.make-type-icon(@type, @color) {
+   .@{type} {
+      .icon {
+         color: @color !important;
+         background: fadeout(@color, 80%);
+      }
+   }
+}
+
+autocomplete-suggestion-list {
+
+   .character-match {
+    font-weight: normal !important;
+  }
+
+  .right-label {
+    max-width: 250px !important; // NOTE this allows long author names
+  }
+
+  .make-type-icon(book, @syntax-color-attribute);
+  .make-type-icon(chapter, @syntax-color-keyword);
+  .make-type-icon(article-journal, @syntax-color-variable);
+
+}
+
+
+div.reference-search {
+  ol.list-group {
+    overflow-x: hidden;
+
+    // Had problems geting these selectors to work as nested so just copy-paste the full selector
+    li.autocomplete-bibtex-entry > div > div.entry > div.author-line > div.citeKey {
+      color: @text-color-subtle;
+      font-style: italic;
+    }
+    // li.autocomplete-bibtex-entry > div > div.entry > div.title-line > p
+    li.autocomplete-bibtex-entry > div > div.entry > div.title-line {
+      white-space: normal;
+    }
+
+    li.autocomplete-bibtex-entry {
+      div {
+
+        display: flex;
+        flex-direction: row;
+
+        div.icon-space {
+
+        }
+
+        div.entry {
+          flex-grow: 1;
+          flex-shrink: 1;
+          flex-direction: column;
+
+          div.author-line {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-right: 1.5em;
+            span {
+              display: flex;
+            }
+          }
+          div.title-line {
+            width: inherit;
+          }
+
+        }
+      }
+    }
+  }
+}

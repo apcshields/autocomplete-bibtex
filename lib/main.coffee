@@ -50,8 +50,7 @@ module.exports =
     @provider = @referenceProvider.provider
 
     # @bibItems = @referenceProvider.possibleWords
-
-    @refView = new RefView(@referenceProvider.bibtex)
+    @refView = new RefView(@referenceProvider.references)
 
     @commands = new CompositeDisposable()
 
@@ -61,15 +60,14 @@ module.exports =
         'bibliography:reload': => @forceReload()
 
   showSearch: ->
-    # @refView = new RefView(@referenceProvider.bibtex)
+    # @refView = new RefView(@referenceProvider.references)
     @refView.populateList()
     @refView.show()
 
   forceReload: ->
     @referenceProvider = new ReferenceProvider()
     @provider = @referenceProvider.provider
-    @refView = new RefView(@referenceProvider.bibtex)
-
+    @refView = new RefView(@referenceProvider.references)
 
     # @bibItems = @referenceProvider.possibleWords
     @commands = new CompositeDisposable()
@@ -80,7 +78,6 @@ module.exports =
         'bibliography:reload': => @forceReload()
 
   deactivate: ->
-    @provider.registration.dispose()
     @commands.dispose()
 
   serialize: ->
