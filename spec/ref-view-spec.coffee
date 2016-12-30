@@ -6,6 +6,6 @@ describe "RefView", ->
 
   describe "Initialising a RefView", ->
     it "loads loads a reference JSON into the view", ->
-      references = JSON.parse(fs.readFileSync(__dirname + '/testRef.json'))
+      references = JSON.parse(fs.readFileSync(__dirname + '/library.json'))
       refView = new RefView(references)
       expect(refView).toExist()
