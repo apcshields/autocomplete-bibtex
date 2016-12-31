@@ -1,5 +1,4 @@
 
-# {View} = require 'space-pen'
 {SelectListView} = require 'atom-space-pen-views'
 
 module.exports =
@@ -54,13 +53,7 @@ class RefView extends SelectListView
       </li>"""
     else
       return ""
-# <div class="entry">
-#   <span>#{item.entryTags.prettyAuthors}</span>
-#   <span class='citeKey'>#{item.citationKey}</span>
-#   <br>
-#   <span>#{item.entryTags.prettyTitle}</span>
-# </div>
-# </div>
+
   confirmed: (item)->
     #insert ref at cursor
     editor = atom.workspace.getActiveTextEditor()
