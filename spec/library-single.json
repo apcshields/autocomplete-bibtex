@@ -1,0 +1,26 @@
+[{
+    "entryType": "article",
+    "citationKey": "Everett1985a",
+    "entryTags": {
+        "abstract": "This is the final report on the performance of 8 low-energy, passive solar houses at Great Linford, Milton Keynes, monitored by the Open University Energy Research Group (ERG), for the Milton Keynes Development Corporation (MKDC), under contract to the Energy Technology Support Unit (ETSU) at Harwell.<br></br><br></br>[The smaller file contains the Executive Summary; the larger file contains the main report, excluding the Executive Summary].",
+        "annote": "Page 163 has wind stuff on it",
+        "author": "Everett, R. and Horton, a. and Doggart, J.",
+        "file": ":Users/jonathanchambers/Documents/Papers/1985/Everett, Horton, Doggart/1985 - Everett, Horton, Doggart - Linford Low Energy Houses.pdf:pdf",
+        "title": "Linford Low Energy Houses",
+        "url": "http://oro.open.ac.uk/19861/",
+        "year": 1985,
+        "authors": [{
+            "personalName": "R.",
+            "familyName": "Everett"
+        }, {
+            "personalName": "a.",
+            "familyName": "Horton"
+        }, {
+            "personalName": "J.",
+            "familyName": "Doggart"
+        }],
+        "prettyTitle": "Linford Low Energy...",
+        "prettyAuthors": "R. Everett et al."
+    },
+    "fuzzyLabel": "Linford Low Energy Houses R. Everett a. Horton J. Doggart"
+}]

@@ -6,94 +6,113 @@ titlecaps = require "./titlecaps"
 citeproc = require "./citeproc"
 yaml = require "yaml-js"
 
+BibtexReader = require "./bibtex-reader"
+YamlReader = require "./yaml-reader"
+CiteprocReader = require "./citeproc-reader"
+
 module.exports =
 class ReferenceProvider
 
   atom.deserializers.add(this)
-  @version: 3
+  @version: 4
   @deserialize: ({data}) -> new ReferenceProvider(data)
-
-  constructor: (state) ->
-    if state and Object.keys(state).length != 0 and state.bibtex?
-      @references = state.references
-      @possibleWords = state.possibleWords
-    else
-      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
-
-    if @references.length == 0
-      @buildWordListFromFiles(atom.config.get "autocomplete-bibtex.bibtex")
-
-    atom.config.onDidChange "autocomplete-bibtex.bibtex", (bibtexFiles) =>
-      @buildWordListFromFiles(bibtexFiles)
-
-    resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
-    atom.config.observe("autocomplete-bibtex.resultTemplate", (resultTemplate) =>
-      @resultTemplate = resultTemplate
-    )
-
-    possibleWords = @possibleWords
-
-    @provider =
-      selector: atom.config.get "autocomplete-bibtex.scope"
-      disableForSelector: atom.config.get "autocomplete-bibtex.ignoreScope"
-      # Hack to supress default provider in MD files
-      # inclusionPriority: 2
-      # excludeLowerPriority: true
-
-      compare: (a, b) ->
-        if a.score < b.score
-          return -1
-        if a.score > b.score
-          return 1
-        return 0
-
-      getSuggestions: ({editor, bufferPosition}) ->
-        prefix = @getPrefix(editor, bufferPosition)
-
-        new Promise (resolve) ->
-          if prefix[0] == "@"
-            normalizedPrefix = prefix.normalize().replace(/^@/, '')
-            suggestions = []
-            hits = fuzzaldrin.filter possibleWords, normalizedPrefix, { key: 'author' }
-
-            for hit in hits
-              hit.score = fuzzaldrin.score normalizedPrefix, hit.author
-
-            hits.sort @compare
-
-            resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
-
-            for word in hits
-              suggestions.push {
-                text: resultTemplate.replace("[key]", word.key)
-                displayText: word.label
-                replacementPrefix: prefix
-                leftLabel: word.key
-                rightLabel: word.by
-                className: word.type
-                iconHTML: '<i class="icon-mortar-board"></i>'
-                description: word.in if word.in?
-                descriptionMoreURL: word.url if word.url?
-              }
-
-            resolve(suggestions)
-
-      getPrefix: (editor, bufferPosition) ->
-        # Whatever your prefix regex might be
-        regex = /@[\w-]+/
-        wordregex = XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
-        cursor = editor.getCursors()[0]
-        start = cursor.getBeginningOfCurrentWordBufferPosition({ wordRegex: wordregex, allowPrevious: false })
-        end = bufferPosition
-        # Get the text for the line up to the triggered buffer position
-        line = editor.getTextInRange([start, bufferPosition])
-        # Match the regex to the line, and return the match
-        line.match(regex)?[0] or ''
-
   serialize: -> {
     deserializer: 'ReferenceProvider'
     data: { references: @references, possibleWords: @possibleWords }
   }
+
+  dispose: () ->
+    for watch in @watchedFiles
+      watch.close()
+
+  # TODO Could add a system to register additional readers
+  fileReaders: [new BibtexReader(), new CiteprocReader(), new YamlReader()]
+
+  constructor: (saveState) ->
+    # These are required for the provider api
+    @selector = atom.config.get "autocomplete-bibtex.scope"
+    @disableForSelector = atom.config.get "autocomplete-bibtex.ignoreScope"
+    # Hack to supress default provider in MD files
+    # inclusionPriority = 2
+    # excludeLowerPriority = true
+
+    @referenceFiles = atom.config.get "autocomplete-bibtex.bibtex"
+    if saveState? && saveState.references? && saveState.possibleWords?
+      @references = saveState.references
+      @possibleWords = saveState.possibleWords
+    else
+      @updateReferences(@referenceFiles)
+
+    @watchedFiles = []
+    @registerReferenceFiles(@referenceFiles)
+
+    # @updateReferences(@referenceFiles)
+
+
+    atom.config.onDidChange "autocomplete-bibtex.bibtex", (newReferenceFiles, oldReferenceFiles) =>
+      # TODO might want to add modifed checks to update references
+      @updateReferences(newReferenceFiles)
+
+    @resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
+
+    atom.config.observe("autocomplete-bibtex.resultTemplate", (resultTemplate) =>
+      @resultTemplate = resultTemplate
+    )
+
+  getSuggestions: ({editor, bufferPosition}) =>
+    prefix = @getPrefix(editor, bufferPosition)
+
+    new Promise (resolve) =>
+      if prefix[0] == "@"
+        normalizedPrefix = prefix.normalize().replace(/^@/, '')
+        suggestions = []
+        hits = fuzzaldrin.filter @possibleWords, normalizedPrefix, { key: 'author' }
+
+        for hit in hits
+          hit.score = fuzzaldrin.score normalizedPrefix, hit.author
+
+        hits.sort @compare
+
+        # resultTemplate = atom.config.get "autocomplete-bibtex.resultTemplate"
+        # TODO change the icon depending on the document type
+        # typeClass = "icon-mortar-board"
+        # if item.entryTags.journal
+        #   typeClass = "icon-file-text"
+        # else if item.entryTags.booktitle
+        #   typeClass = "icon-repo"
+        for word in hits
+          suggestions.push {
+            text: @resultTemplate.replace("[key]", word.key)
+            displayText: word.label
+            replacementPrefix: prefix
+            leftLabel: word.key
+            rightLabel: word.by
+            className: word.type
+            iconHTML: '<i class="icon-mortar-board"></i>'
+            description: word.in if word.in?
+            descriptionMoreURL: word.url if word.url?
+          }
+
+        resolve(suggestions)
+  compare: (a, b) ->
+    if a.score < b.score
+      return -1
+    if a.score > b.score
+      return 1
+    return 0
+
+
+  getPrefix: (editor, bufferPosition) ->
+    # Whatever your prefix regex might be
+    regex = /@[\w-]+/
+    wordregex = XRegExp('(?:^|[\\p{WhiteSpace}\\p{Punctuation}])@[\\p{Letter}\\p{Number}\._-]*')
+    cursor = editor.getCursors()[0]
+    start = cursor.getBeginningOfCurrentWordBufferPosition({ wordRegex: wordregex, allowPrevious: false })
+    end = bufferPosition
+    # Get the text for the line up to the triggered buffer position
+    line = editor.getTextInRange([start, bufferPosition])
+    # Match the regex to the line, and return the match
+    line.match(regex)?[0] or ''
 
   buildWordList: (references) =>
     possibleWords = []
@@ -141,44 +160,50 @@ class ReferenceProvider
 
     return possibleWords
 
-  buildWordListFromFiles: (referenceFiles) =>
+  updateReferences: (referenceFiles) =>
     @references = @readReferenceFiles(referenceFiles)
     @possibleWords = @buildWordList(@references)
 
-  readReferenceFiles: (referenceFiles) =>
-    if referenceFiles.newValue?
-      referenceFiles = referenceFiles.newValue
-    # Make sure our list of files is an array, even if it's only one file
-    if not Array.isArray(referenceFiles)
-      referenceFiles = [referenceFiles]
-
+  registerReferenceFiles: (referenceFiles) =>
+    @watchedFiles = []
     try
-      references = []
-
       for file in referenceFiles
-        # What type of file is this?
-        fileType = file.split('.').pop()
-
         if fs.statSync(file).isFile()
-          if fileType is "json"
-            citeprocObject = JSON.parse fs.readFileSync(file, 'utf-8')
-            citeprocReferences = citeproc.parse citeprocObject
-            references = references.concat citeprocReferences
-          else if fileType is "yaml"
-            citeprocObject = yaml.load fs.readFileSync(file, 'utf-8')
-            citeprocReferences = citeproc.parse citeprocObject
-            references = references.concat citeprocReferences
-          else
-            # Default to trying to parse as a BibTeX file.
-            bibtexParser = new bibtexParse( fs.readFileSync(file, 'utf-8'))
-            references = references.concat( @parseBibtexAuthors( bibtexParser.parse()))
-
+          watch = fs.watch(file, (eventType, filename) =>
+            @updateReferences(referenceFiles)
+          )
+          @watchedFiles.push(watch)
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
-      return references
     catch error
       console.error error
 
+  readReferenceFiles: (referenceFiles) =>
+    # Read contents of refernce files
+    if not Array.isArray(referenceFiles)
+      referenceFiles = [referenceFiles]
+    references = []
+    # try
+    for file in referenceFiles
+      # What type of file is this?
+      if fs.statSync(file).isFile()
+        references = references.concat @readReferenceFile(file)
+      else
+        console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
+    # catch error
+    #   console.error error
+    return references
+
+  readReferenceFile: (file) =>
+    fileType = file.split('.').pop()
+    reader = @getFileReader(fileType)
+    return reader.read(file)
+
+  getFileReader: (fileType) =>
+    for reader in @fileReaders
+
+      if fileType in reader.fileTypes
+        return reader
   ###
   This is a lightly modified version of AutocompleteManager.prefixForCursor
   which allows autocomplete-bibtex to define its own wordRegex.
@@ -205,30 +230,6 @@ class ReferenceProvider
     n = title.lastIndexOf(" ")
     title = title.slice(0, n) + "..."
 
-  parseBibtexAuthors: (citations) ->
-    validCitations = []
-    for citation in citations
-      if citation.entryTags?
-
-
-        if citation.entryTags.author?
-          citation.entryTags.authors = @cleanAuthors citation.entryTags.author.split ' and '
-
-        if citation.entryTags.editor?
-          citation.entryTags.editors = @cleanAuthors citation.entryTags.editor.split ' and '
-
-        validCitations.push(citation)
-
-    return validCitations
-
-  cleanAuthors: (authors) ->
-    return [{ familyName: 'Unknown' }] if not authors?
-
-    for author in authors
-      [familyName, personalName] =
-        if author.indexOf(', ') isnt -1 then author.split(', ') else [author]
-
-      { personalName: personalName, familyName: familyName }
 
   prettifyAuthors: (authors) ->
     return '' if not authors?
