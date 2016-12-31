@@ -21,6 +21,10 @@ class ReferenceProvider
     data: { references: @references, possibleWords: @possibleWords }
   }
 
+  dispose: () ->
+    for watch in @watchedFiles
+      watch.close()
+
   # TODO Could add a system to register additional readers
   fileReaders: [new BibtexReader(), new CiteprocReader(), new YamlReader()]
 
@@ -38,9 +42,12 @@ class ReferenceProvider
       @possibleWords = saveState.possibleWords
     else
       @updateReferences(@referenceFiles)
-    @updateReferences(@referenceFiles)
 
+    @watchedFiles = []
     @registerReferenceFiles(@referenceFiles)
+
+    # @updateReferences(@referenceFiles)
+
 
     atom.config.onDidChange "autocomplete-bibtex.bibtex", (newReferenceFiles, oldReferenceFiles) =>
       # TODO might want to add modifed checks to update references
@@ -158,13 +165,14 @@ class ReferenceProvider
     @possibleWords = @buildWordList(@references)
 
   registerReferenceFiles: (referenceFiles) =>
+    @watchedFiles = []
     try
       for file in referenceFiles
         if fs.statSync(file).isFile()
           watch = fs.watch(file, (eventType, filename) =>
-            console.log 'Updating files'
             @updateReferences(referenceFiles)
           )
+          @watchedFiles.push(watch)
         else
           console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
     catch error
