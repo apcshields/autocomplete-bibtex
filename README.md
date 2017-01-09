@@ -29,7 +29,7 @@ You can install autocomplete-bibtex using the Preferences pane.
 
   ```coffeescript
   'autocomplete-bibtex':
-    'references': [
+    'bibtex': [
       '/path/to/references.bib'
       '/path/to/references.json'
     ]
@@ -40,7 +40,7 @@ You can install autocomplete-bibtex using the Preferences pane.
 
   If you prefer a graphical user interface, you can add edit the settings directly in `Packages - Settings View - Manage Packages - autocomplete-bibtex` as shown in the illustrated screenshot below:
 
-  ![](bibtex-settings.png)  
+  ![](bibtex-settings.png)
 
 2. By default, the autocomplete-bibtex package is configured to provide
   suggestions in [scopes](https://atom.io/docs/latest/advanced/scopes-and-scope-descriptors)
