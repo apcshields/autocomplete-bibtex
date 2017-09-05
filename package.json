@@ -22,7 +22,7 @@
         "xregexp": "^2.0.0",
         "atom-space-pen-views": "^2.1.0",
         "yaml-js": "^0.1.3",
-        "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.2.0"
+        "zotero-bibtex-parse": "https://github.com/apcshields/zotero-bibtex-parse.git#v1.2.0"
     },
     "repository": {
         "type": "git",
