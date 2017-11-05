@@ -1,43 +1,43 @@
 {
-    "name": "autocomplete-bibtex",
-    "main": "./lib/main",
-    "version": "0.7.0",
-    "description": "Uses Autocomplete+ to fill-in keys from bibtex, citeproc JSON, and citeproc YAML files.",
-    "author": "apcshields",
-    "license": "MIT",
-    "keywords": [
-        "markdown",
-        "commonmark",
-        "pandoc",
-        "tex",
-        "bibtex",
-        "citeproc",
-        "yaml"
-    ],
-    "engines": {
-        "atom": ">=1.0.0"
+  "name": "autocomplete-bibtex",
+  "main": "./lib/main",
+  "version": "0.7.1",
+  "description": "Uses Autocomplete+ to fill-in keys from bibtex, citeproc JSON, and citeproc YAML files.",
+  "author": "apcshields",
+  "license": "MIT",
+  "keywords": [
+    "markdown",
+    "commonmark",
+    "pandoc",
+    "tex",
+    "bibtex",
+    "citeproc",
+    "yaml"
+  ],
+  "engines": {
+    "atom": ">=1.0.0"
+  },
+  "dependencies": {
+    "fuzzaldrin": "~1.0.0",
+    "xregexp": "^2.0.0",
+    "atom-space-pen-views": "^2.1.0",
+    "yaml-js": "^0.1.3",
+    "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apcshields/autocomplete-bibtex"
+  },
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "2.0.0": "provide"
+      }
     },
-    "dependencies": {
-        "fuzzaldrin": "~1.0.0",
-        "xregexp": "^2.0.0",
-        "atom-space-pen-views": "^2.1.0",
-        "yaml-js": "^0.1.3",
-        "zotero-bibtex-parse": "git://github.com/apcshields/zotero-bibtex-parse.git#v1.2.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/apcshields/autocomplete-bibtex"
-    },
-    "providedServices": {
-        "autocomplete.provider": {
-            "versions": {
-                "2.0.0": "provide"
-            }
-        },
-        "bibliographicReferences": {
-            "versions": {
-                "1.0.0": "provide"
-            }
-        }
+    "bibliographicReferences": {
+      "versions": {
+        "1.0.0": "provide"
+      }
     }
+  }
 }
