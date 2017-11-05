@@ -28,11 +28,12 @@ module.exports =
       bibliographyFiles = atom.config.get "autocomplete-bibtex.bibtex"
       # reload everything if any files changed since serialisation
       for file in bibliographyFiles
-        stats = fs.statSync(file)
-        if stats.isFile()
-          if state.saveTime < stats.mtime.getTime()
-            reload = true
-            @saveTime = new Date().getTime()
+        if fs.existsSync(file)
+          stats = fs.statSync(file)
+          if stats.isFile()
+            if state.saveTime < stats.mtime.getTime()
+              reload = true
+              @saveTime = new Date().getTime()
 
     if state and reload is false
       @provider = atom.deserializers.deserialize(state.provider)

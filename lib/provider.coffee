@@ -186,7 +186,7 @@ class ReferenceProvider
     # try
     for file in referenceFiles
       # What type of file is this?
-      if fs.statSync(file).isFile()
+      if fs.existsSync(file) and fs.statSync(file).isFile()
         references = references.concat @readReferenceFile(file)
       else
         console.warn("'#{file}' does not appear to be a file, so autocomplete-bibtex will not try to parse it.")
