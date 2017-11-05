@@ -1,5 +1,5 @@
 fs = require "fs"
-bibtexParse = require "zotero-bibtex-parse"
+bibtexParse = require "zotero-bibtex-parse/zotero-bibtex-parse"
 # TODO: maybe convert bibtex to CSL Json standard?
 module.exports =
 class BibtexReader
