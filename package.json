@@ -21,7 +21,11 @@
     "fuzzaldrin": "~1.0.0",
     "xregexp": "^2.0.0",
     "atom-space-pen-views": "^2.1.0",
-    "yaml-js": "^0.1.3",
+    "yaml-js": "^0.1.3"
+  },
+  "devDependencies": {
+    "eslint": "^3.7.0",
+    "eslint-config-google": "^0.6.0"
   },
   "repository": {
     "type": "git",
