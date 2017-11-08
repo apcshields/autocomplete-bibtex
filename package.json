@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "fuzzaldrin": "~1.0.0",
-    "xregexp": "^2.0.0",
     "atom-space-pen-views": "^2.1.0",
     "yaml-js": "^0.1.3"
   },
