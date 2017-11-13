@@ -36,22 +36,22 @@ autocomplete-suggestion-list {
 }
 
 
-div.reference-search {
+div {
   ol.list-group {
     overflow-x: hidden;
 
     // Had problems geting these selectors to work as nested so just copy-paste the full selector
-    li.autocomplete-bibtex-entry > div > div.entry > div.author-line > div.citeKey {
+    li > div.autocomplete-bibtex-entry > div.entry > div.author-line > div.citeKey {
       color: @text-color-subtle;
       font-style: italic;
     }
     // li.autocomplete-bibtex-entry > div > div.entry > div.title-line > p
-    li.autocomplete-bibtex-entry > div > div.entry > div.title-line {
+    li > div.autocomplete-bibtex-entry > div.entry > div.title-line {
       white-space: normal;
     }
 
-    li.autocomplete-bibtex-entry {
-      div {
+    li {
+      div.autocomplete-bibtex-entry {
 
         display: flex;
         flex-direction: row;
