@@ -5,7 +5,8 @@
     },
     "rules" : {
       "max-len": ["warn", 110],
-      "no-else-return": ["warn"]
+      "no-else-return": ["warn"],
+      "semi": ["error", "never"]
     },
     "env": {
         "browser": true,
