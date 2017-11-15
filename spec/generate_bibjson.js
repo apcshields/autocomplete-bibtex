@@ -9,6 +9,7 @@ const referenceTools = require("../lib/reference-tools")
 function main() {
   let file = fs.readFileSync(__dirname + '/library.bib',  'utf-8')
   let bibjson = referenceTools.enhanceReferences(bibparser.toJSON(file))
+  console.log(bibjson);
   fs.writeFileSync('library.json', JSON.stringify(bibjson))
 }
 

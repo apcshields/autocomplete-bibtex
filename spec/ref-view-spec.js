@@ -10,9 +10,11 @@ describe("RefView", () =>
 
   describe("Initialising a RefView", () =>
     it("loads loads a reference JSON into the view", function() {
-      let references = JSON.parse(fs.readFileSync(__dirname + '/library.json', 'utf-8'))
-      const refView = new RefView(references)
-      return expect(refView).toExist()
+      const references = JSON.parse(fs.readFileSync(__dirname + '/library.json', 'utf-8'))
+      const fakeProvider = {references: references}
+      const refView = new RefView(fakeProvider)
+      console.log(refView);
+      expect(refView.selectListView).not.toBeNull()
     })
   )
 )
