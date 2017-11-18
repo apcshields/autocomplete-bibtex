@@ -34,9 +34,9 @@ describe("BibtexParser", () =>
     })
 
     it("throws error on all bad input files", () => {
-      let badFiles = fs.readdirSync(path.join(__dirname, 'test_bibtex_parse', 'bad'))
+      let badFiles = fs.readdirSync(path.join(__dirname, 'test_bibtexes', 'bad'))
       badFiles.forEach(function(file) {
-        let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtex_parse', 'bad', file), 'utf8')
+        let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtexes', 'bad', file), 'utf8')
 
         expect(function() {
           bibtexParse.toJSON(bibTexStr)
