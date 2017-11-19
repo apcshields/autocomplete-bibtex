@@ -9,7 +9,7 @@ describe("BibtexParser", () =>
     it("reads a normal bibtex file", function() {
       let file = 'latex_test.bib'
 
-      let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtex_parse', 'good', file), 'utf8')
+      let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtexes', 'good', file), 'utf8')
 
       let bibTexJson = bibtexParse.toJSON(bibTexStr)
       expect(bibTexJson.length).toBeGreaterThan(0)
@@ -18,15 +18,15 @@ describe("BibtexParser", () =>
     it("reads a bibtex file with comments", () => {
       let file = 'commentTest.bib'
 
-      let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtex_parse', 'good', file), 'utf8')
+      let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtexes', 'good', file), 'utf8')
       let bibTexJson = bibtexParse.toJSON(bibTexStr)
       expect(bibTexJson.length).toBeGreaterThan(0)
     })
 
     it("runs on all good input files", () => {
-      let goodFiles = fs.readdirSync(path.join(__dirname, 'test_bibtex_parse', 'good'))
+      let goodFiles = fs.readdirSync(path.join(__dirname, 'test_bibtexes', 'good'))
       goodFiles.forEach(function(file) {
-        let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtex_parse', 'good', file), 'utf8')
+        let bibTexStr = fs.readFileSync(path.join(__dirname, 'test_bibtexes', 'good', file), 'utf8')
 
         let bibTexJson = bibtexParse.toJSON(bibTexStr)
         expect(bibTexJson.length).toBeGreaterThan(0)
