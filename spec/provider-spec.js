@@ -10,7 +10,7 @@ describe("Provider", () =>
 
   describe("Initialising a provider", function() {
     it("loads a bibtex file", function() {
-      atom.config.set("autocomplete-bibtex.bibtex", path.join(__dirname, 'library.bib'))
+      // atom.config.set("autocomplete-bibtex.bibtex", path.join(__dirname, 'library.bib'))
       const provider = new Provider()
       expect(provider).not.toEqual(null)
 
