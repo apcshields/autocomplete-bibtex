@@ -1,7 +1,7 @@
 {
   "name": "autocomplete-bibtex",
   "main": "./lib/main",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Uses Autocomplete+ to fill-in keys from bibtex, citeproc JSON, and citeproc YAML files.",
   "author": "apcshields",
   "license": "MIT",
